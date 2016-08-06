@@ -1,0 +1,22 @@
+{
+    "name": "mijohansen/php-gae-util",
+    "description": "Description of project php-gae-util.",
+    "authors": [
+        {
+            "name": "Michael Johansen",
+            "email": "michael.johansen@gmail.com"
+        }
+    ],
+    "require": {
+        "google/appengine-php-sdk": "dev-master",
+        "google/apiclient": "dev-master",
+        "tomwalder/php-gds": "dev-master",
+        "klein/klein": "dev-master",
+        "splitbrain/php-archive": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "GaeUtil\\": "src"
+        }
+    }
+}
