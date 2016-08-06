@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "67484ca96f7e29978a8b2c378c8e679c",
-    "content-hash": "5cb5f5326297a5f5455b78feead75c10",
+    "hash": "af7addb68f75b9d58c4d5a7afa0df9d3",
+    "content-hash": "8f2a4326347326ac5a2c2620c98edea6",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -52,21 +52,21 @@
         },
         {
             "name": "google/apiclient",
-            "version": "dev-master",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "b9410f923f312b2a80c5cb9d10c80ed09b8e5da2"
+                "reference": "18dd5534280318598e8770cb7929e9a542e91c0d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/b9410f923f312b2a80c5cb9d10c80ed09b8e5da2",
-                "reference": "b9410f923f312b2a80c5cb9d10c80ed09b8e5da2",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/18dd5534280318598e8770cb7929e9a542e91c0d",
+                "reference": "18dd5534280318598e8770cb7929e9a542e91c0d",
                 "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "~2.0|~3.0",
-                "google/apiclient-services": "^0.6",
+                "google/apiclient-services": "^0.5",
                 "google/auth": "0.9",
                 "guzzlehttp/guzzle": "~5.2|~6.0",
                 "guzzlehttp/psr7": "^1.2",
@@ -107,20 +107,21 @@
             "keywords": [
                 "google"
             ],
-            "time": "2016-07-27 21:46:12"
+            "time": "2016-07-21 18:41:10"
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.6",
+            "version": "v0.5",
+            "target-dir": "Google/Service",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "68290c3645498cf911d0d2552645bcee5c5f23f2"
+                "reference": "a2d43f4c7eace8c7aa16c5ea83191344c63b4526"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/68290c3645498cf911d0d2552645bcee5c5f23f2",
-                "reference": "68290c3645498cf911d0d2552645bcee5c5f23f2",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/a2d43f4c7eace8c7aa16c5ea83191344c63b4526",
+                "reference": "a2d43f4c7eace8c7aa16c5ea83191344c63b4526",
                 "shasum": ""
             },
             "require": {
@@ -129,7 +130,7 @@
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "Google_Service_": "src"
+                    "Google_Service_": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -141,11 +142,11 @@
             "keywords": [
                 "google"
             ],
-            "time": "2016-07-27 20:26:55"
+            "time": "2016-07-21 18:01:41"
         },
         {
             "name": "google/appengine-php-sdk",
-            "version": "dev-master",
+            "version": "1.9.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GoogleCloudPlatform/appengine-php-sdk.git",
@@ -405,24 +406,24 @@
         },
         {
             "name": "klein/klein",
-            "version": "dev-master",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/klein/klein.php.git",
-                "reference": "eb80e09d222aa1a6ca2a0ea48b386433d8c4d169"
+                "reference": "5dc073f05adb67ee09680545b4cc7b0590d2559e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/klein/klein.php/zipball/eb80e09d222aa1a6ca2a0ea48b386433d8c4d169",
-                "reference": "eb80e09d222aa1a6ca2a0ea48b386433d8c4d169",
+                "url": "https://api.github.com/repos/klein/klein.php/zipball/5dc073f05adb67ee09680545b4cc7b0590d2559e",
+                "reference": "5dc073f05adb67ee09680545b4cc7b0590d2559e",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "phpunit/php-code-coverage": "2.x",
-                "phpunit/phpunit": "4.1.x",
+                "phpunit/php-code-coverage": "1.2.x",
+                "phpunit/phpunit": "3.7.x",
                 "squizlabs/php_codesniffer": "1.4.8"
             },
             "type": "library",
@@ -457,7 +458,7 @@
                 "routing",
                 "sinatra"
             ],
-            "time": "2014-12-16 01:08:24"
+            "time": "2014-11-07 07:35:23"
         },
         {
             "name": "monolog/monolog",
@@ -765,7 +766,7 @@
         },
         {
             "name": "splitbrain/php-archive",
-            "version": "dev-master",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/splitbrain/php-archive.git",
@@ -812,29 +813,29 @@
         },
         {
             "name": "tomwalder/php-gds",
-            "version": "dev-master",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tomwalder/php-gds.git",
-                "reference": "a49fbeaa782f86cf84517699f86505fde68eac1c"
+                "reference": "997f40aec99d3e2611c584a03c93a30f372b2705"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tomwalder/php-gds/zipball/a49fbeaa782f86cf84517699f86505fde68eac1c",
-                "reference": "a49fbeaa782f86cf84517699f86505fde68eac1c",
+                "url": "https://api.github.com/repos/tomwalder/php-gds/zipball/997f40aec99d3e2611c584a03c93a30f372b2705",
+                "reference": "997f40aec99d3e2611c584a03c93a30f372b2705",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5.0"
+                "php": ">=5.4.0"
             },
             "require-dev": {
-                "google/apiclient": "1.1.7",
+                "google/apiclient": "1.1.6",
                 "google/appengine-php-sdk": ">=1.9.22",
                 "phpunit/phpunit": "~4.8",
                 "satooshi/php-coveralls": "dev-master"
             },
             "suggest": {
-                "google/apiclient": "Allows you to use the JSON API Gateway/Datastore endpoints. Tested with 1.1.7"
+                "google/apiclient": "Allows you to use the JSON API Gateway/Datastore endpoints. Tested with 1.1.6"
             },
             "type": "library",
             "autoload": {
@@ -868,21 +869,17 @@
                 "google",
                 "nosql"
             ],
-            "time": "2016-07-28 07:19:55"
+            "time": "2015-12-07 20:16:31"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "google/appengine-php-sdk": 20,
-        "google/apiclient": 20,
-        "tomwalder/php-gds": 20,
-        "klein/klein": 20,
-        "splitbrain/php-archive": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.4"
+    },
     "platform-dev": []
 }
