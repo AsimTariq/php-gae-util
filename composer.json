@@ -8,11 +8,12 @@
         }
     ],
     "require": {
-        "google/appengine-php-sdk": "dev-master",
-        "google/apiclient": "dev-master",
-        "tomwalder/php-gds": "dev-master",
-        "klein/klein": "dev-master",
-        "splitbrain/php-archive": "dev-master"
+        "php": ">=5.4",
+        "google/appengine-php-sdk": "1.9.*",
+        "google/apiclient": "2.0.*",
+        "tomwalder/php-gds": "v2.1.*",
+        "klein/klein": "v2.1.*",
+        "splitbrain/php-archive": "1.0.*"
     },
     "autoload": {
         "psr-4": {
