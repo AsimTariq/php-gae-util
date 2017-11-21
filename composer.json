@@ -1,18 +1,24 @@
 {
-    "name": "mijohansen/php-gae-util",
-    "description": "Description of project php-gae-util.",
-    "authors": [
-        {
-            "name": "Michael Johansen",
-            "email": "michael.johansen@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.5"
-    },
-    "autoload": {
-        "psr-4": {
-            "GaeUtil\\": "src"
-        }
+  "name": "mijohansen/php-gae-util",
+  "description": "Description of project php-gae-util.",
+  "minimum-stability": "dev",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Michael Johansen",
+      "email": "michael.johansen@gmail.com"
     }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "tomwalder/php-gds": "^3.0",
+    "jbzoo/utils": "^1.7",
+    "hassankhan/config": "^0.11",
+    "google/appengine-php-sdk": "^1.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "GaeUtil\\": "src"
+    }
+  }
 }
