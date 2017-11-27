@@ -116,7 +116,7 @@ class Util {
 
 
     static function getProtocol() {
-        return "http" . (getenv(("HTTPS") === "on") ? "s" : "") . "://";
+        return "http" . ($_SERVER["HTTPS"] === "on" ? "s" : "") . "://";
     }
 
     static function get_home_url() {

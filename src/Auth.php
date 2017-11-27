@@ -10,7 +10,7 @@ namespace GaeUtil;
 
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
-use JBZoo\Utils\Url;
+
 
 class Auth {
 
@@ -122,7 +122,7 @@ class Auth {
 
     static function createLogoutURL() {
         if (Util::isDevServer()) {
-            return Url::root() . UserService::createLogoutURL("/");
+            return Util::get_home_url() . UserService::createLogoutURL("/");
         } else {
             return UserService::createLogoutURL("/");
         }

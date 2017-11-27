@@ -3,7 +3,6 @@
 namespace GaeUtil;
 
 use google\appengine\api\users\UserService;
-use JBZoo\Utils\Url;
 
 /**
  * Description of JWT
@@ -55,7 +54,7 @@ class JWT {
     static public function getSecureUrl($path, $query_data = []) {
         $query_data["token"] = self::getTokenForCurrentUser();
 
-        return Url::root() . $path . "?" . Url::build($query_data);
+        return Util::get_home_url() . $path . "?" . http_build_query($query_data);
     }
 
     static public function getTokenForCurrentUser() {

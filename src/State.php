@@ -27,11 +27,11 @@ class State {
         }
     }
 
-    static function status($links) {
+    static function status($links = []) {
         $data = [
             "home" => "page",
             "application_id" => AppIdentityService::getApplicationId(),
-            "service"=> getenv('CURRENT_MODULE_ID'),
+            "service" => getenv('CURRENT_MODULE_ID'),
             "is_dev" => self::isDevServer(),
             "default_hostname" => AppIdentityService::getDefaultVersionHostname(),
             "is_admin" => false,
