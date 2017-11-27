@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0b1d2d951649f30e5d58bb472a357e9",
+    "content-hash": "03262f78526d7bf222fdf6771097f54f",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -150,7 +150,7 @@
         },
         {
             "name": "google/appengine-php-sdk",
-            "version": "1.9.30",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GoogleCloudPlatform/appengine-php-sdk.git",
@@ -1006,7 +1006,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "google/appengine-php-sdk": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

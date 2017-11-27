@@ -49,7 +49,7 @@ class Auth {
     }
 
     static function getCallbackUrl() {
-        return Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
+        return Util::get_home_url().Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
     }
 
     static function getGuiUrl() {
@@ -82,7 +82,8 @@ class Auth {
         $client = new \Google_Client();
         $client->setAuthConfig($client_json_path);
         $client->addScope($scopes);
-        $client->setRedirectUri(Url::root() . Conf::get("auth_callback_url"));
+
+        $client->setRedirectUri(self::getCallbackUrl());
         $client->setAccessType('offline');        // offline access
         $client->setIncludeGrantedScopes(true);   // incremental auth
         $client->setApprovalPrompt('force');
