@@ -8,7 +8,7 @@
 
 namespace GaeUtil;
 
-
+use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
 class State {
@@ -25,5 +25,29 @@ class State {
         } else {
             return Util::createLogoutURL();
         }
+    }
+
+    static function status($links) {
+        $data = [
+            "home" => "page",
+            "application_id" => AppIdentityService::getApplicationId(),
+            "service"=> getenv('CURRENT_MODULE_ID'),
+            "is_dev" => self::isDevServer(),
+            "default_hostname" => AppIdentityService::getDefaultVersionHostname(),
+            "is_admin" => false,
+        ];
+        $user = UserService::getCurrentUser();
+        if ($user) {
+            $data["user"] = $user;
+            $data["logout"] = Auth::createLogoutURL("/");
+        } else {
+            $data["login"] = Util::get_home_url() . UserService::createLoginURL("/");
+        }
+        if (UserService::isCurrentUserAdmin()) {
+            $data["is_admin"] = true;
+            $data["composer"] = Composer::getComposerData();
+        }
+        $data["links"] = $links;
+        return $data;
     }
 }

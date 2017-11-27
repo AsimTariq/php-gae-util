@@ -11,14 +11,20 @@
   ],
   "require": {
     "php": ">=5.5",
-    "tomwalder/php-gds": "^3.0",
+    "google/apiclient": "^2.0",
+    "tomwalder/php-gds": "v4-beta1",
     "jbzoo/utils": "^1.7",
     "hassankhan/config": "^0.11",
-    "google/appengine-php-sdk": "^1.9"
+    "google/appengine-php-sdk": "^1.9",
+    "monolog/monolog": "^1.17"
   },
   "autoload": {
     "psr-4": {
       "GaeUtil\\": "src"
     }
+  },
+  "scripts": {
+    "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
+    "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses"
   }
 }

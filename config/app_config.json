@@ -1,0 +1,13 @@
+{
+  "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile"
+  ],
+  "auth_init_url": "/gsc/auth/google-start",
+  "auth_callback_url": "/gsc/auth/google-callback",
+  "frontend_url": "/",
+  "datastore_kind": "GoogleAccessTokens",
+  "used_services": [
+    "Oauth2"
+  ]
+}

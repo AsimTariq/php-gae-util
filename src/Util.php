@@ -4,9 +4,6 @@ namespace GaeUtil;
 
 use DateInterval;
 use DateTime;
-use google\appengine\api\users\UserService;
-use JBZoo\Utils\Str;
-use JBZoo\Utils\Url;
 
 class Util {
 
@@ -118,7 +115,6 @@ class Util {
     }
 
 
-
     static function getProtocol() {
         return "http" . (getenv(("HTTPS") === "on") ? "s" : "") . "://";
     }
@@ -190,16 +186,37 @@ class Util {
         return $parts[count($parts) - 2];
     }
 
-    static function createLogoutURL() {
-        if (self::isDevServer()) {
-            return Url::root() . UserService::createLogoutURL("/");
-        } else {
-            return UserService::createLogoutURL("/");
-        }
-    }
-
     static function isDevServer() {
         return (strpos(getenv('SERVER_SOFTWARE'), 'Development') === 0);
+    }
+
+    static function getVendorDir() {
+        if (defined("COMPOSER_VENDOR_DIR")) {
+            $vendorDir = COMPOSER_VENDOR_DIR;
+        } else {
+            $reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
+            $vendorDir = dirname(dirname($reflection->getFileName()));
+        }
+        return $vendorDir;
+    }
+
+    static function redirect($url) {
+        header('Location: ' . $url);
+        exit;
+    }
+
+    static function link($url, $text) {
+        return "<a href='$url'>$text</a>";
+    }
+
+    /**
+     * @return bool|string
+     */
+    static function resolveFilePath() {
+
+        $filepath = implode(DIRECTORY_SEPARATOR, func_get_args());
+        $filepath_real = realpath($filepath);
+        return $filepath_real;
     }
 }
 
