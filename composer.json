@@ -11,8 +11,8 @@
   ],
   "require": {
     "php": ">=5.5",
-    "google/apiclient": "^2.0",
-    "tomwalder/php-gds": "v4-beta1",
+    "google/apiclient": "dev-master",
+    "tomwalder/php-gds": "v4.*",
     "hassankhan/config": "^0.11",
     "google/appengine-php-sdk": "dev-master",
     "monolog/monolog": "^1.17"

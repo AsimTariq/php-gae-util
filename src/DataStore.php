@@ -17,7 +17,7 @@ class DataStore {
         $store = new Store($kind_schema);
         $entity = $store->createEntity($user_data);
         $entity->setKeyName($user_email);
-        return $store->upsert($entity);
+        $store->upsert($entity);
     }
 
     static function retriveTokenByUser($user_email) {
@@ -30,6 +30,8 @@ class DataStore {
      * Function that retrives users and tokens based on URL. used for background processing in bulk.
      */
     static function retriveTokensByScope($scope){
-
+        $kind_schema = Conf::get("datastore_kind");
+        $store = new Store($kind_schema);
+        return $store->query("SELECT * FROM $kind_schema WHERE scopes='$scope'");
     }
 }

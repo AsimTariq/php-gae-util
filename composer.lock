@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "063a8ffdfde186df8a9f7e330f892c2d",
+    "content-hash": "1cce4ea6149a1391a7a707a7336ccf2d",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -58,12 +58,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "0c4a7b6eaefe8b0a6334c044feab9790095b2ddb"
+                "reference": "2f44829a6a3cc42cb9b4bb9f407306a368589b3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/0c4a7b6eaefe8b0a6334c044feab9790095b2ddb",
-                "reference": "0c4a7b6eaefe8b0a6334c044feab9790095b2ddb",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/2f44829a6a3cc42cb9b4bb9f407306a368589b3b",
+                "reference": "2f44829a6a3cc42cb9b4bb9f407306a368589b3b",
                 "shasum": ""
             },
             "require": {
@@ -109,20 +109,20 @@
             "keywords": [
                 "google"
             ],
-            "time": "2017-11-08T19:28:50+00:00"
+            "time": "2018-01-05T17:17:33+00:00"
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.36",
+            "version": "v0.42",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "2fd7d2876fbc0174faddba3241956a1393536159"
+                "reference": "873421bf7cd0cab613da792124db04e203ff196b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/2fd7d2876fbc0174faddba3241956a1393536159",
-                "reference": "2fd7d2876fbc0174faddba3241956a1393536159",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/873421bf7cd0cab613da792124db04e203ff196b",
+                "reference": "873421bf7cd0cab613da792124db04e203ff196b",
                 "shasum": ""
             },
             "require": {
@@ -146,7 +146,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2017-11-25T00:23:12+00:00"
+            "time": "2018-01-13T00:23:28+00:00"
         },
         {
             "name": "google/appengine-php-sdk",
@@ -191,16 +191,16 @@
         },
         {
             "name": "google/auth",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-auth-library-php.git",
-                "reference": "548d27d670f0236dc5258fa4cdde6e7b63464cfd"
+                "reference": "f3fc99fd621f339ee3d4de01bd6a709ed1396116"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/548d27d670f0236dc5258fa4cdde6e7b63464cfd",
-                "reference": "548d27d670f0236dc5258fa4cdde6e7b63464cfd",
+                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/f3fc99fd621f339ee3d4de01bd6a709ed1396116",
+                "reference": "f3fc99fd621f339ee3d4de01bd6a709ed1396116",
                 "shasum": ""
             },
             "require": {
@@ -213,7 +213,9 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^1.11",
-                "phpunit/phpunit": "3.7.*"
+                "guzzlehttp/promises": "0.1.1|^1.3",
+                "phpunit/phpunit": "^4.8.36",
+                "sebastian/comparator": ">=1.2.3"
             },
             "type": "library",
             "autoload": {
@@ -232,7 +234,7 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2017-10-10T17:01:45+00:00"
+            "time": "2017-12-06T21:27:53+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -305,12 +307,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "e9cdab6ff93ff789b5b599326c727f51d10893a6"
+                "reference": "2e48ae638dc0bf0849772f5590835fcd700a2e1d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/e9cdab6ff93ff789b5b599326c727f51d10893a6",
-                "reference": "e9cdab6ff93ff789b5b599326c727f51d10893a6",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/2e48ae638dc0bf0849772f5590835fcd700a2e1d",
+                "reference": "2e48ae638dc0bf0849772f5590835fcd700a2e1d",
                 "shasum": ""
             },
             "require": {
@@ -348,7 +350,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2017-10-06T12:25:00+00:00"
+            "time": "2017-12-07T21:04:15+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -556,12 +558,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "c5d0674c2093d47c7b87f4f3f9e4403386472012"
+                "reference": "d0155508e94371a5694525d6f2dafa8a48087ecf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/c5d0674c2093d47c7b87f4f3f9e4403386472012",
-                "reference": "c5d0674c2093d47c7b87f4f3f9e4403386472012",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d0155508e94371a5694525d6f2dafa8a48087ecf",
+                "reference": "d0155508e94371a5694525d6f2dafa8a48087ecf",
                 "shasum": ""
             },
             "require": {
@@ -569,7 +571,7 @@
             },
             "require-dev": {
                 "phing/phing": "~2.7",
-                "phpunit/phpunit": "~4.0",
+                "phpunit/phpunit": "^4.8.35|^5.7|^6.0",
                 "sami/sami": "~2.0",
                 "squizlabs/php_codesniffer": "~2.0"
             },
@@ -640,7 +642,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2017-11-23T16:25:34+00:00"
+            "time": "2018-01-01T19:09:05+00:00"
         },
         {
             "name": "psr/cache",
@@ -787,16 +789,16 @@
         },
         {
             "name": "tomwalder/php-gds",
-            "version": "v4-beta1",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tomwalder/php-gds.git",
-                "reference": "1cf19d97ebd594728e556b2c430b13447733dc97"
+                "reference": "950fe584080d65d45c1db1b513bf444decde742b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tomwalder/php-gds/zipball/1cf19d97ebd594728e556b2c430b13447733dc97",
-                "reference": "1cf19d97ebd594728e556b2c430b13447733dc97",
+                "url": "https://api.github.com/repos/tomwalder/php-gds/zipball/950fe584080d65d45c1db1b513bf444decde742b",
+                "reference": "950fe584080d65d45c1db1b513bf444decde742b",
                 "shasum": ""
             },
             "require": {
@@ -844,13 +846,14 @@
                 "google",
                 "nosql"
             ],
-            "time": "2017-10-04T17:00:49+00:00"
+            "time": "2018-01-16T09:37:53+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "google/apiclient": 20,
         "google/appengine-php-sdk": 20
     },
     "prefer-stable": false,
