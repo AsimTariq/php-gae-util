@@ -4,6 +4,7 @@ namespace GaeUtil;
 
 use DateInterval;
 use DateTime;
+use google\appengine\api\app_identity\AppIdentityService;
 
 class Util {
 
@@ -27,6 +28,18 @@ class Util {
         return implode(",", $quotedvalues);
     }
 
+    static function ymdDate($time = null) {
+
+    }
+
+    static function todayYmd() {
+        return date("Y-m-d");
+    }
+
+    static function yesterday() {
+        return Util::dateBefore(Util::todayYmd());
+    }
+
     static function strtodate($str) {
         return date("Y-m-d", strtotime($str));
     }
@@ -45,7 +58,7 @@ class Util {
 
     static function getLastDay($first_period, $length) {
         if (is_string($first_period)) {
-            $thisDateTime = new DateTime($period);
+            $thisDateTime = new DateTime($first_period);
         } else {
             $thisDateTime = $first_period;
         }
@@ -120,7 +133,14 @@ class Util {
     }
 
     static function get_home_url() {
-        return Util::getProtocol() . $_SERVER["HTTP_HOST"];
+        return self::getProtocol() . $_SERVER["HTTP_HOST"];
+    }
+
+    static function get_full_path($path, $query = "") {
+        if (is_array($query)) {
+            $query = "?" . http_build_query($query);
+        }
+        return self::get_home_url() . $path . $query;
     }
 
     static function offset_array($data, $offset, $limit) {
@@ -217,6 +237,37 @@ class Util {
         $filepath = implode(DIRECTORY_SEPARATOR, func_get_args());
         $filepath_real = realpath($filepath);
         return $filepath_real;
+    }
+
+    static function get_current_module() {
+        return getenv("CURRENT_MODULE_ID");
+    }
+
+    static function get_current_application() {
+        return AppIdentityService::getApplicationId();
+    }
+
+    /**
+     * @param $array_name
+     * @param $array
+     * @param $required_key
+     * @throws \Exception
+     */
+    static function key_exist_or_fail($array_name, $array, $required_key) {
+        if (!isset($array[$required_key])) {
+            throw new \Exception("$array_name need the '$required_key' parameter");
+        }
+    }
+
+    static function is_array_or_fail($array_name, $array) {
+        if (!is_array($array)) {
+            throw new \Exception("$array_name should be an array.");
+        }
+    }
+
+    static function get_tempfilename() {
+        $module = self::get_current_module();
+        return tempnam(sys_get_temp_dir(), $module);
     }
 }
 

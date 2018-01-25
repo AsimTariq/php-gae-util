@@ -3,6 +3,7 @@
   "description": "Description of project php-gae-util.",
   "minimum-stability": "dev",
   "type": "library",
+  "version": "0.2.0",
   "authors": [
     {
       "name": "Michael Johansen",
@@ -22,8 +23,11 @@
       "GaeUtil\\": "src"
     }
   },
-  "scripts": {
-    "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
-    "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses"
+  "require-dev": {
+    "php": ">=5.5",
+    "doctrine/instantiator": "v1.0.5",
+    "phpdocumentor/reflection-docblock": "3.2.2",
+    "phpunit/phpunit": "v4.8",
+    "phpunit/php-timer": "v1.0.9"
   }
 }

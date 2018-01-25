@@ -14,13 +14,6 @@ use google\appengine\api\users\UserService;
 
 class Auth {
 
-    /*
-        static function javascriptLocalStorageRedirectHtml($token, $redirect_uri) {
-            $jwt_variable_name = Conf::get("jwt_variable_name", 'JWT_TOKEN');
-            return SlimHelper::javascriptLocalStorageRedirectHtml($jwt_variable_name, $token, $redirect_uri);
-        }
-    */
-
     static function getUserDataFromClient(\Google_Client $client) {
         $service = new \Google_Service_Oauth2($client);
         $user_info = $service->userinfo_v2_me->get();
@@ -44,16 +37,8 @@ class Auth {
         return $user_data;
     }
 
-    static function getInitUrl() {
-        return Conf::get("auth_init_url", getenv('AUTH_INIT_URL'));
-    }
-
     static function getCallbackUrl() {
-        return Util::get_home_url().Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
-    }
-
-    static function getGuiUrl() {
-        return Conf::get("frontend_url", getenv('FRONTEND_URL'));
+        return Util::get_home_url() . Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
     }
 
     static function getClientSecret() {
@@ -66,28 +51,40 @@ class Auth {
     }
 
     static function getScopes() {
-        $scopes = Conf::get("scopes");
+        $scopes = Conf::get("scopes", []);
+        /**
+         * Adding some default scopes. We probably should always know who the client is
+         */
         $scopes[] = 'https://www.googleapis.com/auth/userinfo.email';
+        $scopes[] = "https://www.googleapis.com/auth/userinfo.profile";
         $scopes = array_unique($scopes);
         return $scopes;
     }
 
     /**
-     * @todo Fix automatic Logger Naming
+     * @return \Google_Client
+     */
+    static protected function _getClient() {
+        $client = new \Google_Client();
+        $client->addScope(self::getScopes());
+        $logName = "GoogleClientFor" . Util::get_current_module();
+        $client->setLogger(Logger::create($logName));
+        $client_json_path = Conf::getConfFilepath('client_secret.json');
+        $client->setAuthConfig($client_json_path);
+        return $client;
+    }
+
+    /**
+     * @TODO Shoudl be renamed getClientByEmail
+     *
      * @return \Google_Client
      */
     static function getClient($user_email = false) {
-        $scopes = self::getScopes();
-        $client_json_path = Conf::getConfFilepath('client_secret.json');
-        $client = new \Google_Client();
-        $client->setAuthConfig($client_json_path);
-        $client->addScope($scopes);
-
+        $client = self::_getClient();
         $client->setRedirectUri(self::getCallbackUrl());
         $client->setAccessType('offline');        // offline access
         $client->setIncludeGrantedScopes(true);   // incremental auth
         $client->setApprovalPrompt('force');
-        $client->setLogger(Logger::create("nexus-gsc-client"));
         $current_user = UserService::getCurrentUser();
         if ($current_user) {
             $client->setLoginHint($current_user->getEmail());
@@ -96,16 +93,26 @@ class Auth {
             $user_data = DataStore::retriveTokenByUser($user_email);
             if ($user_data && $user_data->access_token) {
                 $user_data_content = $user_data->getData();
-                $client->setAccessToken($user_data_content);
-                if ($client->isAccessTokenExpired()) {
-                    Syslog(LOG_INFO, "Refreshing token for $user_email.");
-                    $new_token = $client->fetchAccessTokenWithRefreshToken();
-                    foreach (["access_token", "token_type", "expires_in", "refresh_token", "created"] as $key) {
-                        $user_data_content[$key] = $new_token[$key];
-                    }
-                    DataStore::saveToken($user_email, $user_data_content);
-                }
+                $client = self::refreshTokenIfExpired($user_data_content,$client);
             }
+        }
+        return $client;
+    }
+
+    static public function refreshTokenIfExpired($user_data_content, \Google_Client $client = null) {
+        if (is_null($client)) {
+            $client = self::_getClient();
+        }
+        $client->setAccessToken($user_data_content);
+        $user_email = $user_data_content["email"];
+        if ($client->isAccessTokenExpired()) {
+            Syslog(LOG_INFO, "Refreshing token for $user_email.");
+            $new_token = $client->fetchAccessTokenWithRefreshToken();
+            foreach (["access_token", "token_type", "expires_in", "refresh_token", "created"] as $key) {
+                $user_data_content[$key] = $new_token[$key];
+            }
+            DataStore::saveToken($user_email, $user_data_content);
+            $client->setAccessToken($user_data_content);
         }
         return $client;
     }
@@ -148,7 +155,7 @@ class Auth {
         if ($current_user) {
             $user_email = $current_user->getEmail();
             $data["user_id"] = $current_user->getUserId();
-            $data["user_email"] =$user_email;
+            $data["user_email"] = $user_email;
             $data["user_nick"] = $current_user->getNickname();
             $data["logged_in"] = true;
             $data["jwt_token"] = JWT::get($user_email);
@@ -191,5 +198,12 @@ class Auth {
         return $app_access_token;
     }
 
-
+    static function getGoogleClientsByScope($scope){
+        $data = DataStore::retriveTokensByScope($scope);
+        $clients = [];
+        foreach ($data as $i => $user_data_content) {
+            $clients[] = Auth::refreshTokenIfExpired($user_data_content);
+        }
+        return $clients;
+    }
 }

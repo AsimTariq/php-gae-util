@@ -21,7 +21,6 @@ class State {
         $user = UserService::getCurrentUser();
         if ($user) {
             $client = Auth::getClient($user->getEmail());
-
         } else {
             return Util::createLogoutURL();
         }
@@ -29,7 +28,6 @@ class State {
 
     static function status($links = []) {
         $data = [
-            "home" => "page",
             "application_id" => AppIdentityService::getApplicationId(),
             "service" => getenv('CURRENT_MODULE_ID'),
             "is_dev" => self::isDevServer(),
@@ -46,8 +44,10 @@ class State {
         if (UserService::isCurrentUserAdmin()) {
             $data["is_admin"] = true;
             $data["composer"] = Composer::getComposerData();
+            $data["access_token"] = JWT::getTokenForCurrentUser();
         }
         $data["links"] = $links;
+
         return $data;
     }
 }

@@ -19,8 +19,16 @@ class Conf {
     static function getInstance() {
         static $instance;
         if (is_null($instance)) {
-            $config_file_path = self::getConfFilepath("app_config.json");
-            $instance = new Config($config_file_path);
+            $config_file_path = self::getConfFilepath("gaeutil.json");
+            $config_file_path_alt = self::getConfFilepath("app_config.json");
+            if(file_exists($config_file_path)){
+                $instance = new Config($config_file_path);
+            } elseif(file_exists($config_file_path_alt)) {
+                $instance = new Config($config_file_path_alt);
+            } else {
+                $path = Util::resolveFilePath(dirname(__FILE__), "..", "gaeutil.json");
+                $instance = new Config($path);
+            }
         }
         return $instance;
     }

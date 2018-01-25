@@ -14,23 +14,22 @@ class JWT {
     /**
      * Returns a valid JWT token for this account
      */
-    static public function get($username = null) {
-        static $token;
-        if (is_null($username)) {
-            $username_cached = "_";
-        } else {
-            $username_cached = $username;
+    static public function get($email = null) {
+        static $cache;
+        if (is_null($email)) {
+            /**
+             * Creating a token with the current module identity for reference.
+             */
+            $email = Util::get_current_module() . "@" . Util::get_current_application();
         }
-        if (is_null($token[$username_cached])) {
+        if (is_null($cache[$email])) {
             $payload = [
                 "exp" => time() + 3.154e+7,
+                "sub" => $email
             ];
-            if (!is_null($username)) {
-                $payload["usr"] = $username;
-            }
-            $token[$username_cached] = \Firebase\JWT\JWT::encode($payload, self::getSecret(), "HS256");
+            $cache[$email] = \Firebase\JWT\JWT::encode($payload, self::getSecret(), "HS256");
         }
-        return $token[$username_cached];
+        return $cache[$email];
 
     }
 
@@ -41,6 +40,9 @@ class JWT {
 
     static public function getSecret() {
         $jwt_secret = Conf::get("jwt_secret");
+        if(is_null($jwt_secret)){
+            throw new \Exception("Trying to use JWT functions without a secret. This has to be set.");
+        }
         return base64_decode($jwt_secret);
     }
 
@@ -53,8 +55,7 @@ class JWT {
 
     static public function getSecureUrl($path, $query_data = []) {
         $query_data["token"] = self::getTokenForCurrentUser();
-
-        return Util::get_home_url() . $path . "?" . http_build_query($query_data);
+        return Util::get_full_path($path,$query_data);
     }
 
     static public function getTokenForCurrentUser() {

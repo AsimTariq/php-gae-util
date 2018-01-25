@@ -10,6 +10,8 @@ namespace GaeUtil;
 
 class PostInstall {
 
+    static $DEFAULT_SERVICES = ["Oauth2"];
+
     static function rrmdir($dir) {
         if (is_dir($dir)) {
             $objects = scandir($dir);
@@ -34,6 +36,12 @@ class PostInstall {
         return $stufftoignore;
     }
 
+    static function get_required_google_services() {
+        $services = Conf::get("used_services", []);
+        $required = array_merge($services, self::$DEFAULT_SERVICES);
+        return $required;
+    }
+
     static function cleanGoogleApiClasses($event) {
         $vendorDir = $event->getComposer()->getConfig()->get("vendor-dir");
         define("COMPOSER_VENDOR_DIR", $vendorDir);
@@ -48,12 +56,11 @@ class PostInstall {
             "Service"
         ]);
 
-
         /**
          * Deleting Files that are not used.
          */
         $removed_files = 0;
-        $services = Conf::get("used_services", []);
+        $services = self::get_required_google_services();
         $used_services = self::get_used_services($services);
         foreach (scandir($service_directory) as $file) {
             $filepath = $service_directory . DIRECTORY_SEPARATOR . $file;

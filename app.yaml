@@ -1,0 +1,9 @@
+runtime: php55
+api_version: 1
+service: php-gae-util
+
+handlers:
+- url: /testrunner
+  script: /testrunner.php
+  secure: always
+  login: admin

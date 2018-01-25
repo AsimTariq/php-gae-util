@@ -51,7 +51,7 @@ try {
     }
 } catch (Exception $e) {
     Util::cmdline($e->getMessage());
-    syslog(LOG_ALERT,$e->getMessage());
+    syslog(LOG_ALERT, $e->getMessage());
 }
 
 
