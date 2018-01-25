@@ -10,8 +10,8 @@ use GaeUtil\Util;
 
 header('Content-Type:text/plain');
 $current_directory = dirname(__FILE__);
-require_once $current_directory . "tests/bootstrap.php";
-require_once $current_directory . "tests/WorkflowTest.php";
+require_once $current_directory . "/tests/bootstrap.php";
+require_once $current_directory . "/tests/WorkflowTest.php";
 $arguments = [];
 $xmlfilepath = realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . "phpunit.xml");
 
