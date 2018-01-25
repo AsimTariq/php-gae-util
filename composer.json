@@ -1,7 +1,7 @@
 {
   "name": "mijohansen/php-gae-util",
   "description": "Description of project php-gae-util.",
-  "minimum-stability": "dev",
+
   "type": "library",
   "version": "0.2.0",
   "authors": [
