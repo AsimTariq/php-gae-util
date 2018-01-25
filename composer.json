@@ -3,7 +3,7 @@
   "description": "Description of project php-gae-util.",
 
   "type": "library",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "authors": [
     {
       "name": "Michael Johansen",
@@ -12,10 +12,10 @@
   ],
   "require": {
     "php": ">=5.5",
-    "google/apiclient": "dev-master",
+    "google/apiclient": "v2.*",
     "tomwalder/php-gds": "v4.*",
-    "hassankhan/config": "^0.11",
-    "google/appengine-php-sdk": "dev-master",
+    "hassankhan/config": "v0.*",
+    "google/appengine-php-sdk": "v1.*",
     "monolog/monolog": "^1.17"
   },
   "autoload": {
