@@ -202,7 +202,11 @@ class Auth {
         $data = DataStore::retriveTokensByScope($scope);
         $clients = [];
         foreach ($data as $i => $user_data_content) {
-            $clients[] = Auth::refreshTokenIfExpired($user_data_content);
+            try {
+                $clients[] = Auth::refreshTokenIfExpired($user_data_content);
+            } catch (\Exception $e) {
+                syslog(LOG_WARNING, $e->getMessage());
+            }
         }
         return $clients;
     }

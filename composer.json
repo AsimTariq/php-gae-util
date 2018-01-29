@@ -1,7 +1,6 @@
 {
   "name": "mijohansen/php-gae-util",
   "description": "Description of project php-gae-util.",
-
   "type": "library",
   "version": "0.2.1",
   "authors": [
