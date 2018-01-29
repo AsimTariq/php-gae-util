@@ -198,6 +198,10 @@ class Auth {
         return $app_access_token;
     }
 
+    /**
+     * @param $scope
+     * @return \Google_Client[]
+     */
     static function getGoogleClientsByScope($scope){
         $data = DataStore::retriveTokensByScope($scope);
         $clients = [];

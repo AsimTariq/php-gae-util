@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c2afa2df5d78ca161c4f70dba85c8cde",
+    "content-hash": "fc98274aa64d735114626aa7bce6c4e0",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -113,16 +113,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.43",
+            "version": "v0.44",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "c8c09a1b9f94a396c327e7d63296e32c59cd5dc4"
+                "reference": "7f1b3a3f387fc3435f27003977ebf5989f8bcca2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/c8c09a1b9f94a396c327e7d63296e32c59cd5dc4",
-                "reference": "c8c09a1b9f94a396c327e7d63296e32c59cd5dc4",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/7f1b3a3f387fc3435f27003977ebf5989f8bcca2",
+                "reference": "7f1b3a3f387fc3435f27003977ebf5989f8bcca2",
                 "shasum": ""
             },
             "require": {
@@ -146,7 +146,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-01-22T00:23:18+00:00"
+            "time": "2018-01-28T00:23:18+00:00"
         },
         {
             "name": "google/appengine-php-sdk",
@@ -789,16 +789,16 @@
         },
         {
             "name": "tomwalder/php-gds",
-            "version": "v4.0.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tomwalder/php-gds.git",
-                "reference": "950fe584080d65d45c1db1b513bf444decde742b"
+                "reference": "a8f07cf95d940e8840ed5e4304fc7a69e9f0bc1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tomwalder/php-gds/zipball/950fe584080d65d45c1db1b513bf444decde742b",
-                "reference": "950fe584080d65d45c1db1b513bf444decde742b",
+                "url": "https://api.github.com/repos/tomwalder/php-gds/zipball/a8f07cf95d940e8840ed5e4304fc7a69e9f0bc1e",
+                "reference": "a8f07cf95d940e8840ed5e4304fc7a69e9f0bc1e",
                 "shasum": ""
             },
             "require": {
@@ -846,7 +846,7 @@
                 "google",
                 "nosql"
             ],
-            "time": "2018-01-16T09:37:53+00:00"
+            "time": "2018-01-27T12:21:59+00:00"
         }
     ],
     "packages-dev": [
