@@ -28,7 +28,8 @@ class Auth {
             "picture" => $user_info->getPicture(),
             "locale" => $user_info->getLocale(),
             "scopes" => $client->getScopes(),
-            "signup_service" => AppIdentityService::getApplicationId()
+            "signup_application" => Util::get_current_application(),
+            "signup_service" => Util::get_current_module()
         ];
         $access_token = $client->getAccessToken();
         foreach (["access_token", "token_type", "expires_in", "refresh_token", "created"] as $key) {
