@@ -29,7 +29,7 @@ class Util {
     }
 
     static function ymdDate($time = null) {
-
+        return date("Y-m-d", $time);
     }
 
     static function todayYmd() {
