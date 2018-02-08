@@ -99,7 +99,11 @@ class Auth {
         }
         return $client;
     }
-
+    static function getGoogleClientForCurrentUser(){
+        $current_user = UserService::getCurrentUser();
+        $user_email = $current_user->getEmail();
+        return self::getClient($user_email);
+    }
     static public function refreshTokenIfExpired($user_data_content, \Google_Client $client = null) {
         if (is_null($client)) {
             $client = self::_getClient();
@@ -159,6 +163,9 @@ class Auth {
             $data["user_email"] = $user_email;
             $data["user_nick"] = $current_user->getNickname();
             $data["logged_in"] = true;
+            /**
+             * This should use another 
+             */
             $data["jwt_token"] = JWT::get($user_email);
             $data["is_admin"] = UserService::isCurrentUserAdmin();
             /**
