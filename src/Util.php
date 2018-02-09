@@ -269,6 +269,21 @@ class Util {
         $module = self::get_current_module();
         return tempnam(sys_get_temp_dir(), $module);
     }
+
+    /**
+     * @return bool|string
+     */
+    static function path_maker() {
+        $path_parts = [];
+        foreach (func_get_args() as $string) {
+            $string = str_replace("\\", "/", $string);
+            $parts = explode("/", $string);
+            $path_parts = array_merge($path_parts, $parts);
+        }
+        $path= implode(DIRECTORY_SEPARATOR, $path_parts);
+        $path = realpath($path);
+        return $path;
+    }
 }
 
 

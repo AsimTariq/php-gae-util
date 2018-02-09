@@ -30,9 +30,19 @@ try {
         }
     } elseif (isset($_GET["code"])) {
         $code = $_GET["code"];
-        if (Auth::fetchAndSaveTokenByCode($code)) {
-            $redirect_back_to_front = Conf::get("frontend_url", "/");
-            Util::redirect($redirect_back_to_front);
+        $user_data = Auth::fetchAndSaveTokenByCode($code);
+        $current_user_email = Auth::getCurrentUserEmail();
+        if ($user_data) {
+            /**
+             * Checking if user is logged in with same user as autenticated. Problem on dev servers.
+             * And when user logging in with another account.
+             */
+            if ($user_data["email"] != $current_user_email) {
+                Util::redirect(Auth::getAuthRedirectUrl());
+            } else {
+                $redirect_back_to_front = Conf::get("frontend_url", "/");
+                Util::redirect($redirect_back_to_front);
+            }
         } else {
             Util::cmdline("Error saving token");
         }

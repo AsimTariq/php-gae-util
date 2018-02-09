@@ -99,9 +99,13 @@ class Auth {
         }
         return $client;
     }
-    static function getGoogleClientForCurrentUser(){
+    static function getCurrentUserEmail(){
         $current_user = UserService::getCurrentUser();
         $user_email = $current_user->getEmail();
+        return $user_email;
+    }
+    static function getGoogleClientForCurrentUser(){
+        $user_email = self::getCurrentUserEmail();
         return self::getClient($user_email);
     }
     static public function refreshTokenIfExpired($user_data_content, \Google_Client $client = null) {
@@ -196,14 +200,17 @@ class Auth {
         return $data;
     }
 
+    /**
+     * @param $code
+     * @return mixed
+     */
     static function fetchAndSaveTokenByCode($code) {
         $client = self::getClient();
         $client->fetchAccessTokenWithAuthCode($code);
         $user_data = self::getUserDataFromClient($client);
         $user_email = $user_data["email"];
         DataStore::saveToken($user_email, $user_data);
-        $app_access_token = JWT::get($user_email);
-        return $app_access_token;
+        return $user_data;
     }
 
     /**

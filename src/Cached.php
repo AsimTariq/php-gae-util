@@ -35,8 +35,8 @@ class Cached {
 
     /**
      *
-     * @staticvar Memcached $mem
-     * @return Memcached
+     * @staticvar \Memcached $mem
+     * @return \Memcached
      */
     static function client() {
         static $client;

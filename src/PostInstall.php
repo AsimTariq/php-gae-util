@@ -10,7 +10,7 @@ namespace GaeUtil;
 
 class PostInstall {
 
-    static $DEFAULT_SERVICES = ["Oauth2"];
+    static $DEFAULT_SERVICES = ["Oauth2", "CloudKMS"];
 
     static function rrmdir($dir) {
         if (is_dir($dir)) {
@@ -58,6 +58,7 @@ class PostInstall {
 
         /**
          * Deleting Files that are not used.
+         *
          */
         $removed_files = 0;
         $services = self::get_required_google_services();
