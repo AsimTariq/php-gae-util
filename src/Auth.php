@@ -8,7 +8,6 @@
 
 namespace GaeUtil;
 
-use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
 
@@ -94,20 +93,23 @@ class Auth {
             $user_data = DataStore::retriveTokenByUser($user_email);
             if ($user_data && $user_data->access_token) {
                 $user_data_content = $user_data->getData();
-                $client = self::refreshTokenIfExpired($user_data_content,$client);
+                $client = self::refreshTokenIfExpired($user_data_content, $client);
             }
         }
         return $client;
     }
-    static function getCurrentUserEmail(){
+
+    static function getCurrentUserEmail() {
         $current_user = UserService::getCurrentUser();
         $user_email = $current_user->getEmail();
         return $user_email;
     }
-    static function getGoogleClientForCurrentUser(){
+
+    static function getGoogleClientForCurrentUser() {
         $user_email = self::getCurrentUserEmail();
         return self::getClient($user_email);
     }
+
     static public function refreshTokenIfExpired($user_data_content, \Google_Client $client = null) {
         if (is_null($client)) {
             $client = self::_getClient();
@@ -168,7 +170,7 @@ class Auth {
             $data["user_nick"] = $current_user->getNickname();
             $data["logged_in"] = true;
             /**
-             * This should use another 
+             * This should use another
              */
             $data["jwt_token"] = JWT::get($user_email);
             $data["is_admin"] = UserService::isCurrentUserAdmin();
@@ -217,7 +219,7 @@ class Auth {
      * @param $scope
      * @return \Google_Client[]
      */
-    static function getGoogleClientsByScope($scope){
+    static function getGoogleClientsByScope($scope) {
         $data = DataStore::retriveTokensByScope($scope);
         $clients = [];
         foreach ($data as $i => $user_data_content) {
@@ -228,5 +230,59 @@ class Auth {
             }
         }
         return $clients;
+    }
+
+    static function callback_handler($get_request) {
+        try {
+            /**
+             * Accepting multiple auth cycles.
+             * Wrapping this all into a try catch.
+             */
+            if (isset($get_request["next"])) {
+                switch ($get_request["next"]) {
+                    case "google":
+                        Util::redirect(Auth::getAuthRedirectUrl());
+                        break;
+                    default:
+                        echo "Invalid Provider";
+                        break;
+                }
+            } elseif (isset($get_request["code"])) {
+                $code = $get_request["code"];
+                $user_data = Auth::fetchAndSaveTokenByCode($code);
+                $current_user_email = Auth::getCurrentUserEmail();
+                if ($user_data) {
+                    /**
+                     * Checking if user is logged in with same user as autenticated. Problem on dev servers.
+                     * And when user logging in with another account.
+                     */
+                    if ($user_data["email"] != $current_user_email) {
+                        Util::redirect(Auth::getAuthRedirectUrl());
+                    } else {
+                        $redirect_back_to_front = Conf::get("frontend_url", "/");
+                        Util::redirect($redirect_back_to_front);
+                    }
+                } else {
+                    Util::cmdline("Error saving token");
+                }
+            } elseif (isset($get_request["error"])) {
+                switch ($get_request["error"]) {
+                    case "access_denied":
+                        echo "Access Denied. ";
+                        break;
+                    default:
+                        echo "Something Went Wrong. ";
+                        break;
+                }
+                echo Util::link(Auth::getAuthRedirectUrl(), "RETRY");
+            } else {
+                Util::redirect(Auth::getAuthRedirectUrl());
+            }
+        } catch (\Exception $e) {
+            Util::cmdline($e->getMessage());
+            syslog(LOG_ALERT, $e->getMessage());
+        }
+
+
     }
 }

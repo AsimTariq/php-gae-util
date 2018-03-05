@@ -2,7 +2,9 @@
   "name": "mijohansen/php-gae-util",
   "description": "Description of project php-gae-util.",
   "type": "library",
+  "version": "0.5.3",
   "minimum-stability": "dev",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Michael Johansen",
@@ -15,7 +17,8 @@
     "tomwalder/php-gds": "v4.*",
     "hassankhan/config": "v0.*",
     "google/appengine-php-sdk": "v1.*",
-    "monolog/monolog": "^1.17"
+    "monolog/monolog": "v1.*",
+    "google/cloud-storage": "v1.*"
   },
   "autoload": {
     "psr-4": {

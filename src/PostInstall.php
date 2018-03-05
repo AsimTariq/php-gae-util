@@ -37,33 +37,32 @@ class PostInstall {
     }
 
     static function get_required_google_services() {
+
         $services = Conf::get("used_services", []);
+
         $required = array_merge($services, self::$DEFAULT_SERVICES);
         return $required;
     }
 
     static function cleanGoogleApiClasses($event) {
+
         $vendorDir = $event->getComposer()->getConfig()->get("vendor-dir");
         define("COMPOSER_VENDOR_DIR", $vendorDir);
         require_once $vendorDir . DIRECTORY_SEPARATOR . "autoload.php";
-
-        $service_directory = implode(DIRECTORY_SEPARATOR, [
-            $vendorDir,
-            "google",
-            "apiclient-services",
-            "src",
-            "Google",
-            "Service"
-        ]);
+        $service_directory = Util::path_maker($vendorDir, "google", "apiclient-services", "src", "Google", "Service");
 
         /**
          * Deleting Files that are not used.
          *
          */
         $removed_files = 0;
+
         $services = self::get_required_google_services();
+
         $used_services = self::get_used_services($services);
+
         foreach (scandir($service_directory) as $file) {
+
             $filepath = $service_directory . DIRECTORY_SEPARATOR . $file;
             if (in_array($file, $used_services)) {
             } else {

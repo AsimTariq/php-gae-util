@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fba2217e2b3d7fe1746a8bc083cc886b",
+    "content-hash": "ca1def8c7a638d364e21b51f4e318723",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -58,12 +58,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "ffb8b9ba2d5c212c34e0f00d93b48ea4bceda882"
+                "reference": "d669e0f3b92da94d5b4ed960d462dd3b0de920ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/ffb8b9ba2d5c212c34e0f00d93b48ea4bceda882",
-                "reference": "ffb8b9ba2d5c212c34e0f00d93b48ea4bceda882",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/d669e0f3b92da94d5b4ed960d462dd3b0de920ea",
+                "reference": "d669e0f3b92da94d5b4ed960d462dd3b0de920ea",
                 "shasum": ""
             },
             "require": {
@@ -109,20 +109,20 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-01-26T20:12:54+00:00"
+            "time": "2018-02-06T22:48:42+00:00"
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.45",
+            "version": "v0.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "35909fbc909bf9f9e0d36dd05b62f4b1d5ffe3ae"
+                "reference": "e8f3d6c4da47274ff375ee1d62b7a0ba6969d039"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/35909fbc909bf9f9e0d36dd05b62f4b1d5ffe3ae",
-                "reference": "35909fbc909bf9f9e0d36dd05b62f4b1d5ffe3ae",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/e8f3d6c4da47274ff375ee1d62b7a0ba6969d039",
+                "reference": "e8f3d6c4da47274ff375ee1d62b7a0ba6969d039",
                 "shasum": ""
             },
             "require": {
@@ -146,7 +146,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-02-03T00:23:12+00:00"
+            "time": "2018-02-25T00:23:11+00:00"
         },
         {
             "name": "google/appengine-php-sdk",
@@ -237,6 +237,99 @@
             "time": "2018-01-24T18:28:42+00:00"
         },
         {
+            "name": "google/cloud-core",
+            "version": "v1.17.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GoogleCloudPlatform/google-cloud-php-core.git",
+                "reference": "2714eb5810188f126afc1f6dfe3d011b863a8e2b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-core/zipball/2714eb5810188f126afc1f6dfe3d011b863a8e2b",
+                "reference": "2714eb5810188f126afc1f6dfe3d011b863a8e2b",
+                "shasum": ""
+            },
+            "require": {
+                "google/auth": "^1.2",
+                "guzzlehttp/guzzle": "^5.3|^6.0",
+                "guzzlehttp/psr7": "^1.2",
+                "monolog/monolog": "~1",
+                "php": ">=5.5",
+                "psr/http-message": "1.0.*",
+                "rize/uri-template": "~0.3"
+            },
+            "suggest": {
+                "opis/closure": "May be used to serialize closures to process jobs in the batch daemon. Please require version ^3.",
+                "symfony/lock": "Required for the Spanner cached based session pool. Please require the following commit: 3.3.x-dev#1ba6ac9"
+            },
+            "bin": [
+                "bin/google-cloud-batch"
+            ],
+            "type": "library",
+            "extra": {
+                "component": {
+                    "id": "cloud-core",
+                    "target": "GoogleCloudPlatform/google-cloud-php-core.git",
+                    "path": "src/Core",
+                    "entry": "ServiceBuilder.php"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Google\\Cloud\\Core\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
+            "time": "2018-02-26T20:57:20+00:00"
+        },
+        {
+            "name": "google/cloud-storage",
+            "version": "v1.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GoogleCloudPlatform/google-cloud-php-storage.git",
+                "reference": "240de4b1d65fad78983d80ca78bed7b1facd6467"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-storage/zipball/240de4b1d65fad78983d80ca78bed7b1facd6467",
+                "reference": "240de4b1d65fad78983d80ca78bed7b1facd6467",
+                "shasum": ""
+            },
+            "require": {
+                "google/cloud-core": "^1.14"
+            },
+            "suggest": {
+                "google/cloud-pubsub": "May be used to register a topic to receive bucket notifications.",
+                "phpseclib/phpseclib": "May be used in place of OpenSSL for creating signed Cloud Storage URLs. Please require version ^2."
+            },
+            "type": "library",
+            "extra": {
+                "component": {
+                    "id": "cloud-storage",
+                    "target": "GoogleCloudPlatform/google-cloud-php-storage.git",
+                    "path": "src/Storage",
+                    "entry": "StorageClient.php"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Google\\Cloud\\Storage\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Cloud Storage Client for PHP",
+            "time": "2018-02-01T16:15:59+00:00"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "6.3.0",
             "source": {
@@ -307,12 +400,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "2e48ae638dc0bf0849772f5590835fcd700a2e1d"
+                "reference": "0940c910fd14a68bd24a8b7c4a5528415a479c42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/2e48ae638dc0bf0849772f5590835fcd700a2e1d",
-                "reference": "2e48ae638dc0bf0849772f5590835fcd700a2e1d",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/0940c910fd14a68bd24a8b7c4a5528415a479c42",
+                "reference": "0940c910fd14a68bd24a8b7c4a5528415a479c42",
                 "shasum": ""
             },
             "require": {
@@ -350,7 +443,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2017-12-07T21:04:15+00:00"
+            "time": "2018-02-28T07:24:33+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -358,12 +451,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "d2537c86fa8b004c29e9b9f5e10028f0a29df101"
+                "reference": "649e354b657977c312cb6fb95720b1ac485f2092"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/d2537c86fa8b004c29e9b9f5e10028f0a29df101",
-                "reference": "d2537c86fa8b004c29e9b9f5e10028f0a29df101",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/649e354b657977c312cb6fb95720b1ac485f2092",
+                "reference": "649e354b657977c312cb6fb95720b1ac485f2092",
                 "shasum": ""
             },
             "require": {
@@ -415,7 +508,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-10-07T03:19:56+00:00"
+            "time": "2018-02-28T07:24:56+00:00"
         },
         {
             "name": "hassankhan/config",
@@ -558,12 +651,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "2165445f39aa70f07d7e066d0aec845e4a969ac2"
+                "reference": "d305b780829ea4252ed9400b3f5937c2c99b51d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/2165445f39aa70f07d7e066d0aec845e4a969ac2",
-                "reference": "2165445f39aa70f07d7e066d0aec845e4a969ac2",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d305b780829ea4252ed9400b3f5937c2c99b51d4",
+                "reference": "d305b780829ea4252ed9400b3f5937c2c99b51d4",
                 "shasum": ""
             },
             "require": {
@@ -642,7 +735,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2018-01-30T06:39:52+00:00"
+            "time": "2018-02-19T04:29:13+00:00"
         },
         {
             "name": "psr/cache",
@@ -786,6 +879,50 @@
                 "psr-3"
             ],
             "time": "2016-10-10T12:19:37+00:00"
+        },
+        {
+            "name": "rize/uri-template",
+            "version": "0.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rize/UriTemplate.git",
+                "reference": "9e5fdd5c47147aa5adf7f760002ee591ed37b9ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rize/UriTemplate/zipball/9e5fdd5c47147aa5adf7f760002ee591ed37b9ca",
+                "reference": "9e5fdd5c47147aa5adf7f760002ee591ed37b9ca",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Rize\\UriTemplate": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marut K",
+                    "homepage": "http://twitter.com/rezigned"
+                }
+            ],
+            "description": "PHP URI Template (RFC 6570) supports both expansion & extraction",
+            "keywords": [
+                "RFC 6570",
+                "template",
+                "uri"
+            ],
+            "time": "2017-06-14T03:57:53+00:00"
         },
         {
             "name": "tomwalder/php-gds",
@@ -1056,12 +1193,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "9a84d1c09fbf7918e9d3cf998b83ecbf7555261d"
+                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/9a84d1c09fbf7918e9d3cf998b83ecbf7555261d",
-                "reference": "9a84d1c09fbf7918e9d3cf998b83ecbf7555261d",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/dfd6be44111a7c41c2e884a336cc4f461b3b2401",
+                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401",
                 "shasum": ""
             },
             "require": {
@@ -1111,7 +1248,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2017-12-21T16:59:48+00:00"
+            "time": "2018-02-19T10:16:54+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1867,12 +2004,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "eab73b6c21d27ae4cd037c417618dfd4befb0bfe"
+                "reference": "6af42631dcf89e9c616242c900d6c52bd53bd1bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/eab73b6c21d27ae4cd037c417618dfd4befb0bfe",
-                "reference": "eab73b6c21d27ae4cd037c417618dfd4befb0bfe",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/6af42631dcf89e9c616242c900d6c52bd53bd1bb",
+                "reference": "6af42631dcf89e9c616242c900d6c52bd53bd1bb",
                 "shasum": ""
             },
             "require": {
@@ -1917,7 +2054,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-01-21T19:05:02+00:00"
+            "time": "2018-02-16T09:50:28+00:00"
         },
         {
             "name": "webmozart/assert",

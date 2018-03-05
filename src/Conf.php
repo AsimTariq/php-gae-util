@@ -9,12 +9,13 @@
 namespace GaeUtil;
 
 
+use Google\Cloud\Storage\StorageClient;
 use Noodlehaus\Config;
 
 class Conf {
 
     const GAEUTIL_FILENAME = "gaeutil.json";
-    const SECRETS_CIPHER_FILENAME = "secrets.cipher";
+    const CONF_GLOBAL_CONFIG_FILENAME = "global_config_location";
     const CONFIG_DIR = "config";
 
     /**
@@ -24,51 +25,64 @@ class Conf {
         static $instance;
 
         if (is_null($instance)) {
-
-            $config_file_path = self::getConfFilepath(self::GAEUTIL_FILENAME);
-            $config_file_path_alt = self::getConfFilepath("app_config.json");
-            $config_secrets_file_path = self::getConfFilepath(self::SECRETS_CIPHER_FILENAME);
-            if (file_exists($config_file_path)) {
-                $instance = new Config($config_file_path);
-            } elseif (file_exists($config_file_path_alt)) {
-                $instance = new Config($config_file_path_alt);
-            } else {
-                $path = Util::resolveFilePath(dirname(__FILE__), "..", self::GAEUTIL_FILENAME);
-                $instance = new Config($path);
-            }
             /**
-             * Fetching encoded secrets and storing them in cache.
+             * Reads the default config-path into the config instance.
+             * Trying from several locations. Fallback to liberary.
              */
+            $alternative_paths = [
+                self::getConfFilepath(self::GAEUTIL_FILENAME),
+                self::getConfFilepath("app_config.json"),
+                Util::resolveFilePath(dirname(__FILE__), "..", self::GAEUTIL_FILENAME)
+            ];
+            foreach ($alternative_paths as $config_file_path) {
+                if (file_exists($config_file_path)) {
+                    $instance = new Config($config_file_path);
+                    break;
+                }
+            }
 
-            if (file_exists($config_secrets_file_path)) {
-                $cached = new Cached($config_secrets_file_path, !Util::isDevServer());
-                if (!$cached->exists()) {
+            $cached = new Cached(__METHOD__, !Util::isDevServer());
+            if (!$cached->exists()) {
+                $secret_data = [];
+                /**
+                 * Fetching encoded microservice secrets and storing them in cache.
+                 */
+                $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME);
+                Files::ensure_gs_streamwrapper_registered($global_config_file);
+
+                if (file_exists($global_config_file)) {
                     try {
-                        $content = Secrets::decrypt($config_secrets_file_path, $instance);
-                        $data = json_decode($content, JSON_OBJECT_AS_ARRAY);
-                        Util::is_array_or_fail("Encrypted secrets", $data);
-                        $cached->set($data);
+                        $data = Secrets::decrypt_dot_secrets_file($global_config_file);
+
+                        $secret_data = array_merge_recursive($secret_data, $data);
                     } catch (\Exception $e) {
-                        syslog(LOG_WARNING, "Decrpytion failed: " . $e->getMessage());
-                        $cached->set([]);
+                        syslog(LOG_WARNING, "Decrpytion of $global_config_file failed with message: " . $e->getMessage());
                     }
                 }
-                foreach ($cached->get() as $key => $value) {
-                    $instance->set($key, $value);
-                }
+
+                /**
+                 * Creating internal secret for service to frontend communication.
+                 */
+                $secret_data[JWT::CONF_EXTERNAL_SECRET_NAME] = JWT::generate_secret();
+
+                $cached->set($secret_data);
+            }
+            foreach ($cached->get() as $key => $value) {
+                $instance->set($key, $value);
             }
         }
-
-
         return $instance;
     }
 
     static function get($key, $default = null) {
         $env_var = getenv(strtoupper($key));
+
         if ($env_var) {
             return $env_var;
         } else {
-            return self::getInstance()->get($key, $default);
+            $instance = self::getInstance();
+
+            return $instance->get($key, $default);
         }
     }
 
@@ -79,5 +93,13 @@ class Conf {
             $conf_filepath_real = Util::resolveFilePath(dirname(__FILE__), "..", self::CONFIG_DIR, $filename);
         }
         return $conf_filepath_real;
+    }
+
+    static function getGaeUtilJsonPath($project_directory) {
+        return Util::resolveFilePath($project_directory, Conf::CONFIG_DIR, Conf::GAEUTIL_FILENAME);
+    }
+
+    static function getConfFolderPath($project_directory) {
+        return Util::resolveFilePath($project_directory, Conf::CONFIG_DIR);
     }
 }

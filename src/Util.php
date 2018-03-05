@@ -254,9 +254,16 @@ class Util {
      * @throws \Exception
      */
     static function key_exist_or_fail($array_name, $array, $required_key) {
-        if (!isset($array[$required_key])) {
-            throw new \Exception("$array_name need the '$required_key' parameter");
+        if (is_array($required_key)) {
+            foreach ($required_key as $key) {
+                self::key_exist_or_fail($array_name, $array, $key);
+            }
+        } else {
+            if (!isset($array[$required_key])) {
+                throw new \Exception("$array_name need the '$required_key' parameter");
+            }
         }
+
     }
 
     static function is_array_or_fail($array_name, $array) {
@@ -280,9 +287,18 @@ class Util {
             $parts = explode("/", $string);
             $path_parts = array_merge($path_parts, $parts);
         }
-        $path= implode(DIRECTORY_SEPARATOR, $path_parts);
+        $path = implode(DIRECTORY_SEPARATOR, $path_parts);
         $path = realpath($path);
         return $path;
+    }
+
+
+    static function command_maker($command, $params = []) {
+        $parts = [$command];
+        foreach ($params as $key => $val) {
+            $parts[] = "--$key=$val";
+        }
+        return implode(" ", $parts);
     }
 }
 
