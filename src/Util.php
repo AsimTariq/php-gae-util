@@ -307,6 +307,29 @@ class Util {
         }
         return implode(" ", $parts);
     }
+
+    static function domain_from_email($email) {
+        // make sure we've got a valid email
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            // split on @ and return last value of array (the domain)
+            $parts = explode('@', $email);
+            return array_pop($parts);
+        } else {
+            return false;
+        }
+
+    }
+
+    static function local_part_from_email($email) {
+        // make sure we've got a valid email
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            // split on @ and return last value of array (the domain)
+            $parts = explode('@', $email);
+            return array_shift($parts);
+        } else {
+            return false;
+        }
+    }
 }
 
 

@@ -27,7 +27,6 @@ class State {
     }
 
     static function status($links = []) {
-
         $data = [
             "application_id" => Util::get_current_application(),
             "service" => Util::get_current_module(),
@@ -46,7 +45,7 @@ class State {
             $data["is_admin"] = true;
             $data["composer"] = Composer::getComposerData();
             $data["internal_token"] = JWT::getInternalToken();
-            $data["external_token"] = JWT::getExternalToken();
+            $data["external_token"] = JWT::getExternalToken(Util::get_current_user_email());
         }
         $data["links"] = $links;
 

@@ -76,12 +76,12 @@ class JWT {
      * @return string
      * @throws \Exception
      */
-    static public function getExternalToken() {
+    static public function getExternalToken($current_user_email) {
         static $token;
         if (is_null($token)) {
             $payload = [
                 "exp" => time() + 3.154e+7,
-                "sub" => Util::get_current_user_email()
+                "sub" => $current_user_email
             ];
             $secret = self::getSecret(self::CONF_EXTERNAL_SECRET_NAME);
             $token = \Firebase\JWT\JWT::encode($payload, $secret, self::ALG);

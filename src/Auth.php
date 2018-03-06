@@ -119,11 +119,15 @@ class Auth {
         if ($client->isAccessTokenExpired()) {
             Syslog(LOG_INFO, "Refreshing token for $user_email.");
             $new_token = $client->fetchAccessTokenWithRefreshToken();
-            foreach (["access_token", "token_type", "expires_in", "refresh_token", "created"] as $key) {
-                $user_data_content[$key] = $new_token[$key];
+            if ($new_token) {
+                foreach (["access_token", "token_type", "expires_in", "refresh_token", "created"] as $key) {
+                    $user_data_content[$key] = $new_token[$key];
+                }
+                DataStore::saveToken($user_email, $user_data_content);
+                $client->setAccessToken($user_data_content);
+            } else {
+                syslog(LOG_WARNING, "Token refresh failed for $user_email .");
             }
-            DataStore::saveToken($user_email, $user_data_content);
-            $client->setAccessToken($user_data_content);
         }
         return $client;
     }
@@ -146,58 +150,60 @@ class Auth {
         }
     }
 
-    static function getCurrentUserSessionData() {
+    static function getCurrentUserSessionData($authorized_domains = []) {
         $data = [];
-        $current_user = UserService::getCurrentUser();
         $data["logged_in"] = false;
         $data["is_admin"] = false;
         $data["user_id"] = null;
         $data["user_email"] = null;
         $data["user_nick"] = null;
         $data["access_token"] = null;
-        if (Util::isDevServer()) {
-            $root = Util::get_home_url();
-        } else {
-            $root = "";
-        }
-
-        $data["logout_url"] = $root . UserService::createLogoutURL("/");
+        $data["user_domain"] = null;
+        $data["logout_url"] = self::createLogoutURL();
         $data["login_url"] = self::createLoginURL();
+
+        $current_user = UserService::getCurrentUser();
         if ($current_user) {
             $user_email = $current_user->getEmail();
+            $user_is_admin = UserService::isCurrentUserAdmin();
+            $data["is_admin"] = $user_is_admin;
             $data["user_id"] = $current_user->getUserId();
             $data["user_email"] = $user_email;
             $data["user_nick"] = $current_user->getNickname();
-            $data["logged_in"] = true;
-            /**
-             * This should use another
-             */
-            $data["external_jwt_token"] = JWT::getExternalToken($user_email);
-            $data["is_admin"] = UserService::isCurrentUserAdmin();
-            /**
-             * Getting data from GA Client
-             */
-            $client = self::getClient($data["user_email"]);
-            $access_token = $client->getAccessToken();
-            if (is_null($access_token["access_token"])) {
-                $data["logged_in"] = false;
-                $data["login_url"] = Auth::getAuthRedirectUrl();
-            }
+            $user_domain = Util::domain_from_email($user_email);
+            $data["user_domain"] = $user_domain;
+            if (in_array($user_domain, $authorized_domains) || $user_is_admin) {
+                $data["logged_in"] = true;
+                $data["jwt_token"] = JWT::getExternalToken($user_email);
+                /**
+                 * Getting data from the Google Client
+                 */
+                $client = self::getClient($user_email);
+                $access_token = $client->getAccessToken();
+                if (is_null($access_token["access_token"])) {
+                    $data["logged_in"] = false;
+                    $data["login_url"] = Auth::getAuthRedirectUrl();
+                }
 
-            /**
-             * Getting previous stored data from DataStore
-             */
-            $user_data = DataStore::retriveTokenByUser($user_email);
-            if ($user_data) {
-                $user_data = $user_data->getData();
-                foreach (["family_name", "given_name", "name", "gender", "picture", "name", "locale", "verified_email"] as $key) {
-                    if (isset($user_data[$key])) {
-                        $data[$key] = $user_data[$key];
-                    } else {
-                        $data[$key] = null;
+                /**
+                 * Getting previous stored data from DataStore
+                 */
+                $user_data = DataStore::retriveTokenByUser($user_email);
+                if ($user_data) {
+                    $user_data = $user_data->getData();
+                    foreach (["family_name", "given_name", "name", "gender", "picture", "name", "locale", "verified_email"] as $key) {
+                        if (isset($user_data[$key])) {
+                            $data[$key] = $user_data[$key];
+                        } else {
+                            $data[$key] = null;
+                        }
                     }
                 }
+            } else {
+                syslog(LOG_WARNING, "trying to access application with invalid credentials.");
+                /** @TODO Here should 401 be handled. */
             }
+
         }
         return $data;
     }
