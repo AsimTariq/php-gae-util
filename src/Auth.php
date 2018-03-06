@@ -172,7 +172,7 @@ class Auth {
             /**
              * This should use another
              */
-            $data["jwt_token"] = JWT::get($user_email);
+            $data["external_jwt_token"] = JWT::getExternalToken($user_email);
             $data["is_admin"] = UserService::isCurrentUserAdmin();
             /**
              * Getting data from GA Client

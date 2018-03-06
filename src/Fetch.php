@@ -10,9 +10,17 @@ namespace GaeUtil;
 
 
 class Fetch {
+
+    /**
+     * Fetching an url secured by the Internal accesstoken.
+     *
+     * @param $url
+     * @param array $params
+     * @return mixed
+     */
     static public function secure_url($url, $params = []) {
         $headers = [
-            "Authorization: Bearer " . JWT::get()
+            "Authorization: Bearer " . JWT::getInternalToken()
         ];
         $opts = [
             "http" => [
@@ -30,7 +38,7 @@ class Fetch {
         return $result;
     }
 
-    static public function secure_url_cached($url, $params = []){
+    static public function secure_url_cached($url, $params = []) {
         $cacheKey = Cached::keymaker(__METHOD__, $url);
         $cached = new Cached($cacheKey, false);
         if (!$cached->exists()) {

@@ -27,9 +27,10 @@ class State {
     }
 
     static function status($links = []) {
+
         $data = [
-            "application_id" => AppIdentityService::getApplicationId(),
-            "service" => getenv('CURRENT_MODULE_ID'),
+            "application_id" => Util::get_current_application(),
+            "service" => Util::get_current_module(),
             "is_dev" => self::isDevServer(),
             "default_hostname" => AppIdentityService::getDefaultVersionHostname(),
             "is_admin" => false,
@@ -44,7 +45,8 @@ class State {
         if (UserService::isCurrentUserAdmin()) {
             $data["is_admin"] = true;
             $data["composer"] = Composer::getComposerData();
-            $data["access_token"] = JWT::getTokenForCurrentUser();
+            $data["internal_token"] = JWT::getInternalToken();
+            $data["external_token"] = JWT::getExternalToken();
         }
         $data["links"] = $links;
 

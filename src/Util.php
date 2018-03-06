@@ -5,6 +5,7 @@ namespace GaeUtil;
 use DateInterval;
 use DateTime;
 use google\appengine\api\app_identity\AppIdentityService;
+use google\appengine\api\users\UserService;
 
 class Util {
 
@@ -245,6 +246,12 @@ class Util {
 
     static function get_current_application() {
         return AppIdentityService::getApplicationId();
+
+    }
+
+    static function get_current_user_email() {
+        return UserService::getCurrentUser()->getEmail();
+
     }
 
     /**

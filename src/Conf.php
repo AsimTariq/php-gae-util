@@ -8,8 +8,6 @@
 
 namespace GaeUtil;
 
-
-use Google\Cloud\Storage\StorageClient;
 use Noodlehaus\Config;
 
 class Conf {
@@ -41,33 +39,37 @@ class Conf {
                 }
             }
 
-            $cached = new Cached(__METHOD__, !Util::isDevServer());
+            $cached = new Cached(__METHOD__);
             if (!$cached->exists()) {
-                $secret_data = [];
+                $secret_data = [
+                    "global_config_is_loaded" => false
+                ];
                 /**
                  * Fetching encoded microservice secrets and storing them in cache.
                  */
                 $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME);
-                Files::ensure_gs_streamwrapper_registered($global_config_file);
-
-                if (file_exists($global_config_file)) {
+                syslog(LOG_INFO, "Fetching... " . $global_config_file);
+                if (Util::isDevServer()) {
+                    $array_w_secrets = Files::get_storage_json($global_config_file, false);
+                } else {
+                    $array_w_secrets = Files::get_json($global_config_file, false);
+                }
+                if ($array_w_secrets) {
                     try {
-                        $data = Secrets::decrypt_dot_secrets_file($global_config_file);
-
+                        $data = Secrets::decrypt_dot_secrets($array_w_secrets);
                         $secret_data = array_merge_recursive($secret_data, $data);
                     } catch (\Exception $e) {
                         syslog(LOG_WARNING, "Decrpytion of $global_config_file failed with message: " . $e->getMessage());
                     }
                 }
-
                 /**
                  * Creating internal secret for service to frontend communication.
                  */
                 $secret_data[JWT::CONF_EXTERNAL_SECRET_NAME] = JWT::generate_secret();
-
                 $cached->set($secret_data);
             }
             foreach ($cached->get() as $key => $value) {
+                $key = trim($key, ".");
                 $instance->set($key, $value);
             }
         }
@@ -76,7 +78,6 @@ class Conf {
 
     static function get($key, $default = null) {
         $env_var = getenv(strtoupper($key));
-
         if ($env_var) {
             return $env_var;
         } else {

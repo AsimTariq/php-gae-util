@@ -53,7 +53,6 @@ class PostInstall {
 
         /**
          * Deleting Files that are not used.
-         *
          */
         $removed_files = 0;
 
@@ -62,7 +61,6 @@ class PostInstall {
         $used_services = self::get_used_services($services);
 
         foreach (scandir($service_directory) as $file) {
-
             $filepath = $service_directory . DIRECTORY_SEPARATOR . $file;
             if (in_array($file, $used_services)) {
             } else {
