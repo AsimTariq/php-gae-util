@@ -13,6 +13,7 @@ use Noodlehaus\Config;
 class Conf {
 
     const GAEUTIL_FILENAME = "gaeutil.json";
+    const GAEDEV_FILENAME = "gaedev.json";
     const CONF_GLOBAL_CONFIG_FILENAME = "global_config_location";
     const CONFIG_DIR = "config";
 
@@ -48,20 +49,19 @@ class Conf {
                  * Fetching encoded microservice secrets and storing them in cache.
                  */
                 $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME);
-                syslog(LOG_INFO, "Fetching... " . $global_config_file);
-                if (Util::isDevServer()) {
-                    $array_w_secrets = Files::get_storage_json($global_config_file, false);
-                } else {
-                    $array_w_secrets = Files::get_json($global_config_file, false);
-                }
-                if ($array_w_secrets) {
-                    try {
-                        $data = Secrets::decrypt_dot_secrets($array_w_secrets);
-                        $secret_data = array_merge_recursive($secret_data, $data);
-                    } catch (\Exception $e) {
-                        syslog(LOG_WARNING, "Decrpytion of $global_config_file failed with message: " . $e->getMessage());
+                try {
+                    syslog(LOG_INFO, "Fetching... " . $global_config_file);
+                    if (Util::isDevServer()) {
+                        $array_w_secrets = Files::get_storage_json($global_config_file, false);
+                    } else {
+                        $array_w_secrets = Files::get_json($global_config_file, false);
                     }
+                    $data = Secrets::decrypt_dot_secrets($array_w_secrets);
+                    $secret_data = array_merge_recursive($secret_data, $data);
+                } catch (\Exception $e) {
+                    syslog(LOG_WARNING, "Decrpytion of $global_config_file failed with message: " . $e->getMessage());
                 }
+
                 /**
                  * Creating internal secret for service to frontend communication.
                  */
@@ -71,6 +71,9 @@ class Conf {
             foreach ($cached->get() as $key => $value) {
                 $key = trim($key, ".");
                 $instance->set($key, $value);
+            }
+            if (Util::isDevServer()) {
+                self::addConfigFile(self::GAEDEV_FILENAME);
             }
         }
         return $instance;
@@ -91,7 +94,7 @@ class Conf {
         $filepath = self::getConfFilepath($filename);
         try {
             $json_content = Files::get_json($filepath);
-            if($json_content){
+            if ($json_content) {
                 foreach ($json_content as $key => $value) {
                     self::getInstance()->set($key, $value);
                 }

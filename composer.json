@@ -2,7 +2,7 @@
   "name": "mijohansen/php-gae-util",
   "description": "Description of project php-gae-util.",
   "type": "library",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "minimum-stability": "dev",
   "license": "Apache-2.0",
   "authors": [
@@ -33,6 +33,7 @@
     "phpunit/php-timer": "v1.0.9"
   },
   "scripts": {
+    "test": "phpunit",
     "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
     "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses"
   }

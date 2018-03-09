@@ -1,6 +1,6 @@
 <?php
 use GaeUtil\Util;
 
-class WorkflowTest extends PHPUnit_Framework_TestCase {
+class UtilTest extends PHPUnit_Framework_TestCase {
 
 }

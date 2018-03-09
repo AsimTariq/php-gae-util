@@ -10,8 +10,6 @@ use GaeUtil\DataStore;
 use GaeUtil\Util;
 use GaeUtil\Workflow;
 
-
-
 class WorkflowTest extends PHPUnit_Framework_TestCase {
 
     protected $workflowClassName = "TestClassForWorkflows";
@@ -32,19 +30,26 @@ class WorkflowTest extends PHPUnit_Framework_TestCase {
     public function testCreate_workflow() {
         $initial_state = ["2018-01-01"];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, $initial_state);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         $workflow_key = Workflow::create_key_from_config($workflow_config);
         $workflow_config_from_db = Workflow::get_workflow_config($workflow_key);
         $this->assertEquals("a2a81054ba4cabbd12b8fa7db22a3d1f", $workflow_key);
-        $this->assertEquals($this->workflowClassName, $workflow_config_from_db["handler"]);
-        $this->assertEquals($initial_params, $workflow_config_from_db["params"]);
+        $this->assertEquals($this->workflowClassName, $workflow_config_from_db[Workflow::CONF_HANDLER]);
+        $this->assertEquals($initial_params, $workflow_config_from_db[Workflow::CONF_PARAMS]);
     }
-
 
     public function testStart_job() {
         $initial_state = ["2018-01-01"];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, $initial_state);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         $workflow_job_key = __METHOD__;
         $state = Workflow::start_job($workflow_job_key, $workflow_config);
         Workflow::end_job($workflow_job_key, $initial_state);
@@ -57,7 +62,11 @@ class WorkflowTest extends PHPUnit_Framework_TestCase {
     public function testFail_job() {
         $initial_state = ["2018-01-01"];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, $initial_state);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         Workflow::start_job(__METHOD__, $workflow_config);
         Workflow::fail_job(__METHOD__, "Testing failed!");
         sleep(1);
@@ -68,7 +77,11 @@ class WorkflowTest extends PHPUnit_Framework_TestCase {
     public function testEnd_job() {
         $initial_state = ["2018-01-01"];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, $initial_state);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         Workflow::start_job(__METHOD__, $workflow_config);
         Workflow::end_job(__METHOD__);
         sleep(1);
@@ -81,7 +94,11 @@ class WorkflowTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException(Exception::class);
         $initial_state = ["2018-01-01"];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, $initial_state);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         $workflow_job_key = __METHOD__;
         Workflow::start_job($workflow_job_key, $workflow_config);
         sleep(1); // sleep for some weird irritating reason
@@ -94,7 +111,11 @@ class WorkflowTest extends PHPUnit_Framework_TestCase {
         $initial_state = ["2018-01-01"];
         $expected_state = [Util::dateAfter("2018-01-01")];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, $initial_state);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         $workflow_key = Workflow::create_key_from_config($workflow_config);
         sleep(1);
         $pre_job_state = Workflow::get_workflow_state($workflow_key);
@@ -105,17 +126,21 @@ class WorkflowTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testRunFromKey() {
-        $initial_date = "2018-01-01";
+        $initial_state = ["2018-01-01"];
         $date_after = Util::dateAfter($initial_date);
         $expected_state = [$date_after];
         $initial_params = ["parameter1", "parameter2"];
-        $workflow_config = Workflow::create_workflow($this->workflowClassName, $initial_params, [$initial_date]);
+        $workflow_config = Workflow::create_workflow([
+            Workflow::CONF_HANDLER => $this->workflowClassName,
+            Workflow::CONF_PARAMS => $initial_params,
+            Workflow::CONF_INITIAL_STATE => $initial_state,
+        ]);
         $workflow_key = Workflow::create_key_from_config($workflow_config);
         $result_state = Workflow::run_from_key($workflow_key);
         sleep(1);
         $persisted_state = Workflow::get_workflow_state($workflow_key);
         $this->assertEquals($expected_state, $result_state, "Run state should produce the next day.");
-        $this->assertEquals($result_state, $persisted_state,"State should be persisted.");
+        $this->assertEquals($result_state, $persisted_state, "State should be persisted.");
     }
 
 }
