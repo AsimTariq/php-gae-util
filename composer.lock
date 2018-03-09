@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca1def8c7a638d364e21b51f4e318723",
+    "content-hash": "9dad88313e50a61bd51db4d6ec651d8b",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -113,16 +113,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.48",
+            "version": "v0.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "e8f3d6c4da47274ff375ee1d62b7a0ba6969d039"
+                "reference": "7552d7d1bb92e933fc93088014c8c2555c0feab6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/e8f3d6c4da47274ff375ee1d62b7a0ba6969d039",
-                "reference": "e8f3d6c4da47274ff375ee1d62b7a0ba6969d039",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/7552d7d1bb92e933fc93088014c8c2555c0feab6",
+                "reference": "7552d7d1bb92e933fc93088014c8c2555c0feab6",
                 "shasum": ""
             },
             "require": {
@@ -146,7 +146,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-02-25T00:23:11+00:00"
+            "time": "2018-03-04T00:24:05+00:00"
         },
         {
             "name": "google/appengine-php-sdk",
@@ -651,12 +651,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "d305b780829ea4252ed9400b3f5937c2c99b51d4"
+                "reference": "fc90c58f7f4e6c375a0dadfe5fad27e694f8c50f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d305b780829ea4252ed9400b3f5937c2c99b51d4",
-                "reference": "d305b780829ea4252ed9400b3f5937c2c99b51d4",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/fc90c58f7f4e6c375a0dadfe5fad27e694f8c50f",
+                "reference": "fc90c58f7f4e6c375a0dadfe5fad27e694f8c50f",
                 "shasum": ""
             },
             "require": {
@@ -735,7 +735,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2018-02-19T04:29:13+00:00"
+            "time": "2018-03-03T19:44:11+00:00"
         },
         {
             "name": "psr/cache",

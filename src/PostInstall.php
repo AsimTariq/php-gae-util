@@ -10,7 +10,7 @@ namespace GaeUtil;
 
 class PostInstall {
 
-    static $DEFAULT_SERVICES = ["Oauth2", "CloudKMS"];
+    static $DEFAULT_SERVICES = ["Oauth2", "CloudKMS", "SQLAdmin"];
 
     static function rrmdir($dir) {
         if (is_dir($dir)) {

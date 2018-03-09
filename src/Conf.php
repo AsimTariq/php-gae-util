@@ -87,6 +87,22 @@ class Conf {
         }
     }
 
+    static function addConfigFile($filename) {
+        $filepath = self::getConfFilepath($filename);
+        try {
+            $json_content = Files::get_json($filepath);
+            if($json_content){
+                foreach ($json_content as $key => $value) {
+                    self::getInstance()->set($key, $value);
+                }
+                return true;
+            }
+        } catch (\Exception $exception) {
+            syslog(LOG_WARNING, "Error adding $filename from config dir. " . $exception->getMessage());
+        }
+        return false;
+    }
+
     static function getConfFilepath($filename) {
         $vendorDir = Composer::getVendorDir();
         $conf_filepath_real = Util::resolveFilePath($vendorDir, "..", self::CONFIG_DIR, $filename);
