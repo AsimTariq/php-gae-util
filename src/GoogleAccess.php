@@ -39,7 +39,29 @@ class GoogleAccess {
         $accounts = array_values($accounts);
     }
 
-    static function createWindowsCompliantHttpClient($base_path) {
+    /**
+     * @return \Google_Client
+     */
+    static function get_google_client($logger_name = null) {
+        if (is_null($logger_name)) {
+            $logger_name = "Google_Client at " . Util::get_current_module();
+        }
+        $client = new \Google_Client();
+        $client->useApplicationDefaultCredentials(true);
+        $client->setApplicationName(Util::get_current_module() . "@" . Util::get_current_application());
+        $client->setLogger(Logger::create($logger_name));
+        if (Util::isDevServer()) {
+            $http = self::createWindowsCompliantHttpClient();
+            $client->setHttpClient($http);
+        }
+        return $client;
+    }
+
+    /**
+     * @param $base_path
+     * @return Client
+     */
+    static function createWindowsCompliantHttpClient($base_path = null) {
         // guzzle 6
 
         $options = [

@@ -64,10 +64,8 @@ class Auth {
      * @return \Google_Client
      */
     static protected function _getClient() {
-        $client = new \Google_Client();
+        $client = GoogleAccess::get_google_client("GaeUtil Auth");
         $client->addScope(self::getScopes());
-        $logName = "GoogleClientFor" . Util::get_current_module();
-        $client->setLogger(Logger::create($logName));
         $client_json_path = Conf::getConfFilepath('client_secret.json');
         $client->setAuthConfig($client_json_path);
         return $client;

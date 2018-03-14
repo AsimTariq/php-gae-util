@@ -2,6 +2,7 @@
 
 namespace GaeUtil;
 
+use Google\Auth\HttpHandler\Guzzle6HttpHandler;
 use Google\Cloud\Storage\StorageClient;
 
 /**
@@ -19,10 +20,20 @@ class Files {
         return $DownloadPath;
     }
 
+    static function get_storage_client() {
+        $options = [];
+        if (Util::isDevServer()) {
+            $httpClient = GoogleAccess::createWindowsCompliantHttpClient();
+            $options["httpHandler"] = new Guzzle6HttpHandler($httpClient);
+        }
+        $storageClient = new StorageClient($options);
+        return $storageClient;
+    }
+
     static function ensure_gs_streamwrapper_registered($filename) {
         $scheme = parse_url($filename, PHP_URL_SCHEME);
         if ($scheme == "gs" && !in_array('gs', stream_get_wrappers())) {
-            $client = new StorageClient();
+            $client = self::get_storage_client();
             $client->registerStreamWrapper();
         }
     }
@@ -40,8 +51,8 @@ class Files {
         $path = parse_url($filename, PHP_URL_PATH);
         $object_name = trim($path, "/");
         if ($scheme == "gs") {
-            $storage = new StorageClient();
-            $bucket = $storage->bucket($bucket);
+            $client = self::get_storage_client();
+            $bucket = $client->bucket($bucket);
             $object = $bucket->object($object_name);
             return $object;
         } else {
@@ -49,7 +60,6 @@ class Files {
             return false;
         }
     }
-
 
     static function get_storage_json($filename, $default = null) {
         $object = self::get_storage_object($filename);

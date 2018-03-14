@@ -93,22 +93,8 @@ class Secrets {
      * @return \Google_Service_CloudKMS
      */
     static public function getService() {
-        $client = new \Google_Client();
-        $client->useApplicationDefaultCredentials();
-        if(1){
-            $base_path = $client->getHttpClient()->getConfig("base_path");
-            $http = GoogleAccess::createWindowsCompliantHttpClient($base_path);
-            $client->setHttpClient($http);
-        }
-
-
+        $client = GoogleAccess::get_google_client();
         $client->addScope('https://www.googleapis.com/auth/cloud-platform');
-        if (0) {
-            $client->addScope('https://www.googleapis.com/auth/userinfo.email');
-            $service = new \Google_Service_Oauth2($client);
-            $user_info = $service->userinfo_v2_me->get();
-            $user_obj = $user_info->toSimpleObject();
-        }
         // Create the Cloud KMS client.
         $kms = new \Google_Service_CloudKMS($client);
         return $kms;
