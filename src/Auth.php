@@ -10,7 +10,6 @@ namespace GaeUtil;
 
 use google\appengine\api\users\UserService;
 
-
 class Auth {
 
     static function getUserDataFromClient(\Google_Client $client) {
@@ -225,8 +224,8 @@ class Auth {
      * @param $scope
      * @return \Google_Client[]
      */
-    static function getGoogleClientsByScope($scope) {
-        $data = DataStore::retriveTokensByScope($scope);
+    static function getGoogleClientsByScope($scope, $domain = null) {
+        $data = DataStore::retriveTokensByScope($scope, $domain);
         $clients = [];
         foreach ($data as $i => $user_data_content) {
             try {
@@ -289,6 +288,15 @@ class Auth {
             syslog(LOG_ALERT, $e->getMessage());
         }
 
+    }
 
+    static function get_current_user_email() {
+        return UserService::getCurrentUser()->getEmail();
+
+    }
+
+    static function get_current_user_domain() {
+        $email = self::get_current_user_email();
+        return Util::domain_from_email($email);
     }
 }

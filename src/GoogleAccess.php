@@ -8,13 +8,15 @@
 
 namespace GaeUtil;
 
+use GuzzleHttp\Client;
 
 class GoogleAccess {
 
     static function analyticsReadonly() {
 
     }
-    static function webmastersReadonly(){
+
+    static function webmastersReadonly() {
         $scope = Google_Service_Webmasters::WEBMASTERS_READONLY;
         $clients = Auth::getGoogleClientsByScope($scope);
         $accounts = [];
@@ -35,5 +37,17 @@ class GoogleAccess {
             }
         }
         $accounts = array_values($accounts);
+    }
+
+    static function createWindowsCompliantHttpClient($base_path) {
+        // guzzle 6
+
+        $options = [
+            'exceptions' => false,
+            'base_uri' => $base_path,
+            'sink' => Util::get_tempfilename()
+        ];
+
+        return new Client($options);
     }
 }

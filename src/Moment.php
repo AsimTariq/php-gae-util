@@ -14,6 +14,7 @@ class Moment {
     const MYSQL_DATE_FORMAT = 'Y-m-d';
     const MYSQL_DATETIME_FORMAT = 'Y-m-d H:i:s';
     const ONEDAY = 86400;
+    const ONEHOUR = 3600;
 
     static function mysqlDateTime($time = null) {
         if (is_null($time)) {

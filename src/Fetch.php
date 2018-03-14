@@ -8,7 +8,6 @@
 
 namespace GaeUtil;
 
-
 class Fetch {
 
     /**
@@ -47,5 +46,15 @@ class Fetch {
             $cached->set($result);
         }
         return $cached->get();
+    }
+
+    static public function internal_service($application_id, $service, $path, $params = []) {
+        $url = "https://$service-dot-$application_id.appspot.com" . $path;
+        return self::secure_url($url, $params);
+    }
+
+    static public function internal_service_cached($application_id, $service, $path, $params = []) {
+        $url = "https://$service-dot-$application_id.appspot.com" . $path;
+        return self::secure_url_cached($url, $params);
     }
 }

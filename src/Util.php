@@ -5,7 +5,6 @@ namespace GaeUtil;
 use DateInterval;
 use DateTime;
 use google\appengine\api\app_identity\AppIdentityService;
-use google\appengine\api\users\UserService;
 
 class Util {
 
@@ -31,6 +30,10 @@ class Util {
 
     static function ymdDate($time = null) {
         return date("Y-m-d", $time);
+    }
+
+    static function strtoYdate($string) {
+        return self::ymdDate(strtotime($string));
     }
 
     static function todayYmd() {
@@ -127,7 +130,6 @@ class Util {
         print_r($variable);
         echo("</pre>");
     }
-
 
     static function getProtocol() {
         return "http" . ($_SERVER["HTTPS"] === "on" ? "s" : "") . "://";
@@ -250,7 +252,8 @@ class Util {
     }
 
     static function get_current_user_email() {
-        return UserService::getCurrentUser()->getEmail();
+        syslog(LOG_WARNING, "Moved to Auth-module.");
+        return Auth::get_current_user_email();
 
     }
 
@@ -298,7 +301,6 @@ class Util {
         $path = realpath($path);
         return $path;
     }
-
 
     static function command_maker($command, $params = []) {
         $parts = [$command];

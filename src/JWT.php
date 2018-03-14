@@ -28,7 +28,6 @@ class JWT {
      */
     const CONF_SCOPED_SECRET_NAME = "jwt_scoped_secret";
 
-
     const ALG = "HS256";
 
     /**
@@ -55,6 +54,7 @@ class JWT {
 
     /**
      * Get Token used for service to service communication.
+     * Setting standard time to 5 seconds for internal service to service communication.
      *
      * @return string
      * @throws \Exception
@@ -63,7 +63,7 @@ class JWT {
         static $token;
         if (is_null($token)) {
             $payload = [
-                "exp" => time() + 3.154e+7,
+                "exp" => time() + Moment::ONEHOUR,
                 "sub" => Util::get_current_module() . "@" . Util::get_current_application()
             ];
             $secret = self::getSecret(self::CONF_INTERNAL_SECRET_NAME);
@@ -76,11 +76,14 @@ class JWT {
      * @return string
      * @throws \Exception
      */
-    static public function getExternalToken($current_user_email) {
+    static public function getExternalToken($current_user_email, $ttl = null) {
         static $token;
         if (is_null($token)) {
+            if (is_null($ttl)) {
+                $ttl = Moment::ONEHOUR;
+            }
             $payload = [
-                "exp" => time() + 3.154e+7,
+                "exp" => time() + $ttl,
                 "sub" => $current_user_email
             ];
             $secret = self::getSecret(self::CONF_EXTERNAL_SECRET_NAME);
@@ -93,14 +96,13 @@ class JWT {
         static $token;
         if (is_null($token)) {
             $payload = [
-                "exp" => time() + 3.154e+7,
+                "exp" => time() + Moment::ONEHOUR,
                 "sub" => Util::get_current_module() . "@" . Util::get_current_application()
             ];
             $secret = self::getSecret(self::CONF_SCOPED_SECRET_NAME);
             $token = \Firebase\JWT\JWT::encode($payload, $secret, self::ALG);
         }
         return $token;
-
 
     }
 
@@ -150,6 +152,5 @@ class JWT {
         $random_pseudo_bytes = openssl_random_pseudo_bytes(32);
         return base64_encode($random_pseudo_bytes);
     }
-
 
 }

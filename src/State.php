@@ -44,8 +44,8 @@ class State {
         if (UserService::isCurrentUserAdmin()) {
             $data["is_admin"] = true;
             $data["composer"] = Composer::getComposerData();
-            $data["internal_token"] = JWT::getInternalToken();
-            $data["external_token"] = "Bearer ".JWT::getExternalToken(Util::get_current_user_email());
+            $data["internal_token"] = "Bearer ".JWT::getInternalToken();
+            $data["external_token"] = "Bearer ".JWT::getExternalToken(Util::get_current_user_email(),Moment::ONEDAY);
         }
         $data["links"] = $links;
 

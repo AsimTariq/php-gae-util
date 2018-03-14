@@ -95,6 +95,12 @@ class Secrets {
     static public function getService() {
         $client = new \Google_Client();
         $client->useApplicationDefaultCredentials();
+        if(1){
+            $base_path = $client->getHttpClient()->getConfig("base_path");
+            $http = GoogleAccess::createWindowsCompliantHttpClient($base_path);
+            $client->setHttpClient($http);
+        }
+
 
         $client->addScope('https://www.googleapis.com/auth/cloud-platform');
         if (0) {
