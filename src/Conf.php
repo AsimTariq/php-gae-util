@@ -52,25 +52,26 @@ class Conf {
                 try {
                     syslog(LOG_INFO, "Fetching... " . $global_config_file);
                     if (Util::isDevServer()) {
-                        $array_w_secrets = Files::get_storage_json($global_config_file, false);
+                        $array_w_secrets = Files::getStorageJson($global_config_file, false);
                     } else {
-                        $array_w_secrets = Files::get_json($global_config_file, false);
+                        $array_w_secrets = Files::getJson($global_config_file, false);
                     }
-                    $data = Secrets::decrypt_dot_secrets($array_w_secrets);
+                    $data = Secrets::decryptDotSecrets($array_w_secrets);
                     $secret_data = array_merge_recursive($secret_data, $data);
+                    /**
+                     * Creating internal secret for service to frontend communication.
+                     */
+                    $secret_data[JWT::CONF_EXTERNAL_SECRET_NAME] = JWT::generateSecret();
+                    $cached->set($secret_data);
                 } catch (\Exception $e) {
                     syslog(LOG_WARNING, "Decrpytion of $global_config_file failed with message: " . $e->getMessage());
                 }
-
-                /**
-                 * Creating internal secret for service to frontend communication.
-                 */
-                $secret_data[JWT::CONF_EXTERNAL_SECRET_NAME] = JWT::generate_secret();
-                $cached->set($secret_data);
             }
-            foreach ($cached->get() as $key => $value) {
-                $key = trim($key, ".");
-                $instance->set($key, $value);
+            if($cached->exists()){
+                foreach ($cached->get() as $key => $value) {
+                    $key = trim($key, ".");
+                    $instance->set($key, $value);
+                }
             }
             if (Util::isDevServer()) {
                 self::addConfigFile(self::GAEDEV_FILENAME);
@@ -93,7 +94,7 @@ class Conf {
     static function addConfigFile($filename) {
         $filepath = self::getConfFilepath($filename);
         try {
-            $json_content = Files::get_json($filepath);
+            $json_content = Files::getJson($filepath);
             if ($json_content) {
                 foreach ($json_content as $key => $value) {
                     self::getInstance()->set($key, $value);

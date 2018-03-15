@@ -7,7 +7,7 @@
  */
 
 namespace GaeUtil;
-
+use Composer\Autoload\ClassLoader;
 
 class Composer {
 
@@ -15,7 +15,7 @@ class Composer {
         if (defined("COMPOSER_VENDOR_DIR")) {
             $vendorDir = COMPOSER_VENDOR_DIR;
         } else {
-            $reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
+            $reflection = new \ReflectionClass(ClassLoader::class);
             $vendorDir = dirname(dirname($reflection->getFileName()));
         }
         return $vendorDir;

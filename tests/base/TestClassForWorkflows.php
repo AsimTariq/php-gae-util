@@ -5,6 +5,7 @@
  * Date: 24/01/2018
  * Time: 14:38
  */
+
 use GaeUtil\Util;
 
 class TestClassForWorkflows {

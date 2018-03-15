@@ -17,19 +17,10 @@ class State {
         return (strpos(getenv('SERVER_SOFTWARE'), 'Development') === 0);
     }
 
-    static function getRedirectUrl() {
-        $user = UserService::getCurrentUser();
-        if ($user) {
-            $client = Auth::getClient($user->getEmail());
-        } else {
-            return Util::createLogoutURL();
-        }
-    }
-
     static function status($links = []) {
         $data = [
-            "application_id" => Util::get_current_application(),
-            "service" => Util::get_current_module(),
+            "application_id" => Util::getApplicationId(),
+            "service" => Util::getModuleId(),
             "is_dev" => self::isDevServer(),
             "default_hostname" => AppIdentityService::getDefaultVersionHostname(),
             "is_admin" => false,
@@ -37,15 +28,16 @@ class State {
         $user = UserService::getCurrentUser();
         if ($user) {
             $data["user"] = $user;
-            $data["logout"] = Auth::createLogoutURL("/");
+            $data["logout"] = Auth::createLogoutURL();
         } else {
-            $data["login"] = Util::get_home_url() . UserService::createLoginURL("/");
+            $data["login"] = Auth::createLoginURL();
         }
+
         if (UserService::isCurrentUserAdmin()) {
             $data["is_admin"] = true;
             $data["composer"] = Composer::getComposerData();
             $data["internal_token"] = "Bearer ".JWT::getInternalToken();
-            $data["external_token"] = "Bearer ".JWT::getExternalToken(Util::get_current_user_email(),Moment::ONEDAY);
+            $data["external_token"] = "Bearer ".JWT::getExternalToken(Auth::getCurrentUserEmail(),Moment::ONEDAY);
         }
         $data["links"] = $links;
 

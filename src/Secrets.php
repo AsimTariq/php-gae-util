@@ -41,7 +41,7 @@ class Secrets {
         return Conf::get(self::CONF_KEY_ID_NAME);
     }
 
-    static public function reverse_kms_key($key_name) {
+    static public function reverseKmsKey($key_name) {
         $matches = [];
         $required = ["project", "location", "keyRing", "cryptoKey"];
         preg_match_all("/^projects\/(?<project>.*)\/locations\/(?<location>.*)\/keyRings\/(?<keyRing>.*)\/cryptoKeys\/(?<cryptoKey>.*)$/i", $key_name, $matches);
@@ -52,7 +52,7 @@ class Secrets {
         return $output;
     }
 
-    static public function get_key_name($project, $location, $keyRing, $cryptoKey) {
+    static public function getKeyName($project, $location, $keyRing, $cryptoKey) {
         // The resource name of the cryptokey.
         return sprintf('projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s',
             $project,
@@ -79,7 +79,7 @@ class Secrets {
             $keyRingId = $conf->get(self::CONF_KEYRING_ID_NAME);
             $cryptoKeyId = $conf->get(self::CONF_KEY_ID_NAME);
         }
-        return self::get_key_name($projectId, $locationId, $keyRingId, $cryptoKeyId);
+        return self::getKeyName($projectId, $locationId, $keyRingId, $cryptoKeyId);
     }
 
 
@@ -93,7 +93,7 @@ class Secrets {
      * @return \Google_Service_CloudKMS
      */
     static public function getService() {
-        $client = GoogleAccess::get_google_client();
+        $client = GoogleApis::getGoogleClient();
         $client->addScope('https://www.googleapis.com/auth/cloud-platform');
         // Create the Cloud KMS client.
         $kms = new \Google_Service_CloudKMS($client);
@@ -161,14 +161,19 @@ class Secrets {
      * @return mixed
      * @throws \Exception
      */
-    static public function decrypt_json($ciphertextFileName, Config $config = null) {
+    static public function decryptJson($ciphertextFileName, Config $config = null) {
         $content = self::decrypt($ciphertextFileName, $config);
         $data = json_decode($content, JSON_OBJECT_AS_ARRAY);
-        Util::is_array_or_fail("Encrypted secrets", $data);
+        Util::isArrayOrFail("Encrypted secrets", $data);
         return $data;
     }
 
-    static public function encrypt_dot_secrets($array_w_secrets, $encryption_key_name) {
+    /**
+     * @param array $array_w_secrets
+     * @param $encryption_key_name
+     * @return array
+     */
+    static public function encryptDotSecrets(Array $array_w_secrets, $encryption_key_name) {
         $secrets = [];
         foreach ($array_w_secrets as $key => $value) {
             if ($key[0] == ".") {
@@ -178,14 +183,19 @@ class Secrets {
         }
         if (count($secrets)) {
             $array_w_secrets[self::ARRAY_KEY_NAME] = $encryption_key_name;
-            $array_w_secrets[self::ARRAY_CIPHER_NAME] = self::encrypt_string(json_encode($secrets), $encryption_key_name);
+            $array_w_secrets[self::ARRAY_CIPHER_NAME] = self::encryptString(json_encode($secrets), $encryption_key_name);
             $array_w_secrets["_created_time"] = date("c");
             $array_w_secrets["_created_by"] = self::getService()->getClient()->getClientId();
         }
         return $array_w_secrets;
     }
 
-    static public function decrypt_dot_secrets($array_w_secrets, $key_name = null) {
+    /**
+     * @param array $array_w_secrets
+     * @param null $key_name
+     * @return array
+     */
+    static public function decryptDotSecrets(Array $array_w_secrets, $key_name = null) {
         if (isset($array_w_secrets[self::ARRAY_KEY_NAME])) {
             if (is_null($key_name)) {
                 $key_name = $array_w_secrets[self::ARRAY_KEY_NAME];
@@ -194,7 +204,7 @@ class Secrets {
         }
 
         if (isset($array_w_secrets[self::ARRAY_CIPHER_NAME])) {
-            $json_string = self::decrypt_string($array_w_secrets[self::ARRAY_CIPHER_NAME], $key_name);
+            $json_string = self::decryptString($array_w_secrets[self::ARRAY_CIPHER_NAME], $key_name);
             unset($array_w_secrets[self::ARRAY_CIPHER_NAME]);
             $data = json_decode($json_string, JSON_OBJECT_AS_ARRAY);
             foreach ($data as $key => $value) {
@@ -213,7 +223,7 @@ class Secrets {
      * @param $key_name
      * @return mixed
      */
-    static public function encrypt_string($plaintext_string, $key_name) {
+    static public function encryptString($plaintext_string, $key_name) {
         $kms = self::getService();
         $base64_encoded_json = base64_encode($plaintext_string);
         $request = new \Google_Service_CloudKMS_EncryptRequest();
@@ -228,7 +238,7 @@ class Secrets {
     /**
      *
      */
-    static public function decrypt_string($base64_encoded_ciphertext, $key_name) {
+    static public function decryptString($base64_encoded_ciphertext, $key_name) {
         $kms = self::getService();
         $request = new \Google_Service_CloudKMS_DecryptRequest();
         $request->setCiphertext($base64_encoded_ciphertext);
@@ -244,19 +254,19 @@ class Secrets {
      * @param null $key_name
      * @return mixed
      */
-    static public function decrypt_dot_secrets_file($filename, $key_name = null) {
+    static public function decryptDotSecretsFile($filename, $key_name = null) {
         $cache_key = Cached::keymaker(__METHOD__, $filename);
         $cached = new Cached($cache_key);
         if (!$cached->exists()) {
-            $content = Files::get_json($filename);
-            $decrypted = self::decrypt_dot_secrets($content, $key_name);
+            $content = Files::getJson($filename);
+            $decrypted = self::decryptDotSecrets($content, $key_name);
             $cached->set($decrypted);
         }
         return $cached->get();
     }
 
-    static public function encrypt_dot_secrets_file($filename, $array_with_secrets, $key_name) {
-        $data = self::encrypt_dot_secrets($array_with_secrets, $key_name);
-        return Files::put_json($filename, $data);;
+    static public function encryptDotSecretsFile($filename, $array_with_secrets, $key_name) {
+        $data = self::encryptDotSecrets($array_with_secrets, $key_name);
+        return Files::putJson($filename, $data);
     }
 }

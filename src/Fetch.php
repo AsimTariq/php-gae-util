@@ -16,8 +16,9 @@ class Fetch {
      * @param $url
      * @param array $params
      * @return mixed
+     * @throws \Exception
      */
-    static public function secure_url($url, $params = []) {
+    static public function secureUrl($url, $params = []) {
         $headers = [
             "Authorization: Bearer " . JWT::getInternalToken()
         ];
@@ -37,24 +38,54 @@ class Fetch {
         return $result;
     }
 
-    static public function secure_url_cached($url, $params = []) {
-        $cacheKey = Cached::keymaker(__METHOD__, $url);
+    /**
+     * Wrapper that caches hits towards an service. Internal or otherwise.
+     *
+     * @param $url
+     * @param array $params
+     * @return mixed|\the
+     * @throws \Exception
+     */
+    static public function secureUrlCached($url, $params = []) {
+        $cacheKey = Cached::keymaker(__METHOD__, $url, $params);
         $cached = new Cached($cacheKey, false);
         if (!$cached->exists()) {
-            $result = self::secure_url($url);
+            $result = self::secureUrl($url, $params);
             syslog(LOG_INFO, "Returned " . count($result) . " rows.");
             $cached->set($result);
         }
         return $cached->get();
     }
 
-    static public function internal_service($application_id, $service, $path, $params = []) {
+    /**
+     * For internal service on Google App Engine. Basically just expands application and service
+     * to the correct domain on App Engine. This url is the fastest url to use internally on
+     * App engine, so this method is prefered for service to service communication.
+     *
+     * @param $application_id
+     * @param $service
+     * @param $path
+     * @param array $params
+     * @return mixed
+     * @throws \Exception
+     */
+    static public function internalService($application_id, $service, $path, $params = []) {
         $url = "https://$service-dot-$application_id.appspot.com" . $path;
-        return self::secure_url($url, $params);
+        return self::secureUrl($url, $params);
     }
 
-    static public function internal_service_cached($application_id, $service, $path, $params = []) {
+    /**
+     * Wrapper for the Fetch::internal_service method that caches.
+     *
+     * @param $application_id
+     * @param $service
+     * @param $path
+     * @param array $params
+     * @return mixed|\the
+     * @throws \Exception
+     */
+    static public function internalServiceCached($application_id, $service, $path, $params = []) {
         $url = "https://$service-dot-$application_id.appspot.com" . $path;
-        return self::secure_url_cached($url, $params);
+        return self::secureUrlCached($url, $params);
     }
 }

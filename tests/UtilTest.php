@@ -1,6 +1,7 @@
 <?php
-use GaeUtil\Util;
 
-class UtilTest extends PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class UtilTest extends TestCase {
 
 }

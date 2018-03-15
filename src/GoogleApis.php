@@ -10,7 +10,7 @@ namespace GaeUtil;
 
 use GuzzleHttp\Client;
 
-class GoogleAccess {
+class GoogleApis {
 
     static function analyticsReadonly() {
 
@@ -36,22 +36,25 @@ class GoogleAccess {
                 ];
             }
         }
-        $accounts = array_values($accounts);
+        return array_values($accounts);
     }
 
     /**
+     * Return a client that uses default credentials.
+     * See Auth::getGoogleClient for a version that works with user credentials.
+     *
      * @return \Google_Client
      */
-    static function get_google_client($logger_name = null) {
+    static function getGoogleClient($logger_name = null) {
         if (is_null($logger_name)) {
-            $logger_name = "Google_Client at " . Util::get_current_module();
+            $logger_name = "Google_Client at " . Util::getModuleId();
         }
         $client = new \Google_Client();
-        $client->useApplicationDefaultCredentials(true);
-        $client->setApplicationName(Util::get_current_module() . "@" . Util::get_current_application());
+        $client->useApplicationDefaultCredentials();
+        $client->setApplicationName(Util::getModuleId() . "@" . Util::getApplicationId());
         $client->setLogger(Logger::create($logger_name));
         if (Util::isDevServer()) {
-            $http = self::createWindowsCompliantHttpClient();
+            $http = self::getWindowsCompliantHttpClient();
             $client->setHttpClient($http);
         }
         return $client;
@@ -61,15 +64,13 @@ class GoogleAccess {
      * @param $base_path
      * @return Client
      */
-    static function createWindowsCompliantHttpClient($base_path = null) {
+    static function getWindowsCompliantHttpClient($options = []) {
         // guzzle 6
-
-        $options = [
+        $default_options = [
             'exceptions' => false,
-            'base_uri' => $base_path,
-            'sink' => Util::get_tempfilename()
+            'sink' => Files::getTempFilename()
         ];
-
+        $options = array_merge_recursive($default_options);
         return new Client($options);
     }
 }

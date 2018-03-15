@@ -12,28 +12,37 @@ use Google\Cloud\Storage\StorageClient;
  */
 class Files {
 
-    static function downloadUrlToTempFile($url) {
-        $DownloadPath = Util::get_tempfilename();
-        $fp = fopen($DownloadPath, 'w');
+    /**
+     * Downloads file and returns the temporary filename.
+     *
+     * @param $url
+     * @return bool|string
+     */
+    static function downloadToTempfile($url) {
+        $download_path = Files::getTempFilename();
+        $fp = fopen($download_path, 'w+');
         fwrite($fp, file_get_contents($url));
         fclose($fp);
-        return $DownloadPath;
+        return $download_path;
     }
 
-    static function get_storage_client() {
+    /**
+     * @return StorageClient
+     */
+    static function getStorageClient() {
         $options = [];
         if (Util::isDevServer()) {
-            $httpClient = GoogleAccess::createWindowsCompliantHttpClient();
+            $httpClient = GoogleApis::getWindowsCompliantHttpClient();
             $options["httpHandler"] = new Guzzle6HttpHandler($httpClient);
         }
         $storageClient = new StorageClient($options);
         return $storageClient;
     }
 
-    static function ensure_gs_streamwrapper_registered($filename) {
+    static function ensureStreamwrappersRegistered($filename) {
         $scheme = parse_url($filename, PHP_URL_SCHEME);
         if ($scheme == "gs" && !in_array('gs', stream_get_wrappers())) {
-            $client = self::get_storage_client();
+            $client = self::getStorageClient();
             $client->registerStreamWrapper();
         }
     }
@@ -45,13 +54,13 @@ class Files {
      * @param $filename
      * @return bool|\Google\Cloud\Storage\StorageObject
      */
-    static function get_storage_object($filename) {
+    static function getStorageObject($filename) {
         $scheme = parse_url($filename, PHP_URL_SCHEME);
         $bucket = parse_url($filename, PHP_URL_HOST);
         $path = parse_url($filename, PHP_URL_PATH);
         $object_name = trim($path, "/");
         if ($scheme == "gs") {
-            $client = self::get_storage_client();
+            $client = self::getStorageClient();
             $bucket = $client->bucket($bucket);
             $object = $bucket->object($object_name);
             return $object;
@@ -61,8 +70,8 @@ class Files {
         }
     }
 
-    static function get_storage_json($filename, $default = null) {
-        $object = self::get_storage_object($filename);
+    static function getStorageJson($filename, $default = null) {
+        $object = self::getStorageObject($filename);
         if ($object) {
             $json_string = $object->downloadAsString();
             $array_with_content = json_decode($json_string, JSON_OBJECT_AS_ARRAY);
@@ -72,15 +81,15 @@ class Files {
         }
     }
 
-    static function ensure_directory($directory) {
+    static function ensureDirectory($directory) {
         if (!file_exists($directory)) {
             mkdir($directory);
             syslog(LOG_INFO, "Created new directory: $directory");
         }
     }
 
-    static function get_json($filename, $default = null) {
-        self::ensure_gs_streamwrapper_registered($filename);
+    static function getJson($filename, $default = null) {
+        self::ensureStreamwrappersRegistered($filename);
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
             $data = json_decode($json, JSON_OBJECT_AS_ARRAY);
@@ -90,12 +99,12 @@ class Files {
         return $data;
     }
 
-    static function put_json($filename, $data) {
-        self::ensure_gs_streamwrapper_registered($filename);
+    static function putJson($filename, $data) {
+        self::ensureStreamwrappersRegistered($filename);
         return file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
     }
 
-    static function get_filenames($from_directory) {
+    static function getFilenames($from_directory) {
         $filenames = [];
         foreach (scandir($from_directory) as $filename) {
             $full_path = $from_directory . DIRECTORY_SEPARATOR . $filename;
@@ -104,5 +113,10 @@ class Files {
             }
         }
         return $filenames;
+    }
+
+    static function getTempFilename() {
+        $module = Util::getModuleId();
+        return tempnam(sys_get_temp_dir(), $module);
     }
 }

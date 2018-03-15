@@ -21,7 +21,6 @@ $suite = new PHPUnit_Framework_TestSuite();
 $suite->addTestSuite("WorkflowTest");
 
 if (Util::isDevServer()) {
-
     PHPUnit_TextUI_TestRunner::run($suite, $arguments);
 } else {
     echo "Don't want to run tests in production.";

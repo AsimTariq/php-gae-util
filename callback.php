@@ -13,6 +13,6 @@ $autoloader_locations = implode(DIRECTORY_SEPARATOR, ["..", "..", 'autoload.php'
 
 require $autoloader_locations;
 
-Auth::callback_handler($_GET);
+Auth::callbackHandler($_GET);
 
 
