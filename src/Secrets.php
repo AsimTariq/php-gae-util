@@ -93,7 +93,7 @@ class Secrets {
      * @return \Google_Service_CloudKMS
      */
     static public function getService() {
-        $client = GoogleAccess::get_google_client();
+        $client = GoogleApis::getGoogleClient();
         $client->addScope('https://www.googleapis.com/auth/cloud-platform');
         // Create the Cloud KMS client.
         $kms = new \Google_Service_CloudKMS($client);
@@ -164,7 +164,7 @@ class Secrets {
     static public function decrypt_json($ciphertextFileName, Config $config = null) {
         $content = self::decrypt($ciphertextFileName, $config);
         $data = json_decode($content, JSON_OBJECT_AS_ARRAY);
-        Util::is_array_or_fail("Encrypted secrets", $data);
+        Util::isArrayOrFail("Encrypted secrets", $data);
         return $data;
     }
 
@@ -248,7 +248,7 @@ class Secrets {
         $cache_key = Cached::keymaker(__METHOD__, $filename);
         $cached = new Cached($cache_key);
         if (!$cached->exists()) {
-            $content = Files::get_json($filename);
+            $content = Files::getJson($filename);
             $decrypted = self::decrypt_dot_secrets($content, $key_name);
             $cached->set($decrypted);
         }
@@ -257,6 +257,6 @@ class Secrets {
 
     static public function encrypt_dot_secrets_file($filename, $array_with_secrets, $key_name) {
         $data = self::encrypt_dot_secrets($array_with_secrets, $key_name);
-        return Files::put_json($filename, $data);;
+        return Files::putJson($filename, $data);
     }
 }

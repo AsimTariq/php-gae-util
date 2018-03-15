@@ -5,5 +5,3 @@ service: php-gae-util
 handlers:
 - url: /testrunner
   script: /testrunner.php
-  secure: always
-  login: admin

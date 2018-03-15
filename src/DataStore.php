@@ -8,6 +8,7 @@
 
 namespace GaeUtil;
 
+use GDS\Gateway;
 use GDS\Store;
 
 class DataStore {
@@ -15,12 +16,29 @@ class DataStore {
     const DEFAULT_TOKEN_KIND = "GoogleAccessTokens";
     const DEFAULT_WORKFLOW_KIND = "GaeUtilWorkflows";
 
-    static function getTokenKind() {
+    const CONF_WORKFLOW_KIND_KEY = "datastore_workflow_kind";
+
+    protected static $obj_gateway;
+
+    static function setGateway(Gateway $obj_gateway) {
+        self::$obj_gateway = $obj_gateway;
+    }
+
+    /**
+     * @param $kind_schema
+     * @return Store
+     * @throws \Exception
+     */
+    static function store($kind_schema) {
+        return new Store($kind_schema, self::$obj_gateway);
+    }
+
+    static function getGoogleAccessTokenKind() {
         return Conf::get("datastore_kind", SELF::DEFAULT_TOKEN_KIND);
     }
 
     static function getWorkflowKind() {
-        return Conf::get("datastore_workflow_kind", SELF::DEFAULT_WORKFLOW_KIND);
+        return Conf::get(SELF::CONF_WORKFLOW_KIND_KEY, SELF::DEFAULT_WORKFLOW_KIND);
     }
 
     static function getWorkflowJobKind() {
@@ -28,34 +46,43 @@ class DataStore {
     }
 
     static function deleteAll($kind_schema) {
-        $store = new Store($kind_schema);
-        $entities = $store->fetchAll();
-        syslog(LOG_INFO, "Found " . count($entities) . " records from $kind_schema, deleting them ALL.");
-        $store->delete($entities);
+        if (Util::isDevServer()) {
+            $store = self::store($kind_schema);
+            $entities = $store->fetchAll();
+            syslog(LOG_INFO, "Found " . count($entities) . " records from $kind_schema, deleting them ALL.");
+            $store->delete($entities);
+        } else {
+            throw new \Exception("GaeUtil refuse to run delete all in production.");
+        }
+
     }
 
     static function saveToken($user_email, $user_data) {
-        $kind_schema = self::getTokenKind();
+        $kind_schema = self::getGoogleAccessTokenKind();
+        $user_data["domain"] = Util::getDomainFromEmail($user_email);
         self::upsert($kind_schema, $user_email, $user_data);
     }
 
-    static function retriveTokenByUser($user_email) {
-        $kind_schema = self::getTokenKind();
-        $store = new Store($kind_schema);
+    static function retriveTokenByUserEmail($user_email) {
+        $kind_schema = self::getGoogleAccessTokenKind();
+        $store = self::store($kind_schema);
         return $store->fetchByName($user_email);
     }
 
     /**
      * Function that retrives users and tokens based on URL. used for background processing in bulk.
      */
-    static function retriveTokensByScope($scope) {
-        $kind_schema = self::getTokenKind();
+    static function retriveTokensByScope($scope, $domain = null) {
+        $kind_schema = self::getGoogleAccessTokenKind();
         $str_query = "SELECT * FROM $kind_schema WHERE scopes='$scope'";
+        if (!is_null($domain)) {
+            $str_query = $str_query . " AND domain='$domain'";
+        }
         return self::fetchAll($kind_schema, $str_query);
     }
 
     static function fetchAll($kind_schema, $str_query) {
-        $store = new Store($kind_schema);
+        $store = self::store($kind_schema);
         $result = $store->fetchAll($str_query);
         $output = [];
         foreach ($result as $row) {
@@ -70,23 +97,40 @@ class DataStore {
     }
 
     static function upsert($kind_schema, $key, $data) {
-        $store = new Store($kind_schema);
+        $store = self::store($kind_schema);
         $entity = $store->createEntity($data);
         $entity->setKeyName($key);
         $store->upsert($entity);
         syslog(LOG_INFO, "Saving $key at kind $kind_schema.");
     }
 
-    static function retriveWorkflow($workflow_key) {
+    static function retrieveWorkflow($workflow_key) {
         $kind_schema = self::getWorkflowKind();
-        $store = new Store($kind_schema);
+        $store = self::store($kind_schema);
         return $store->fetchByName($workflow_key);
     }
 
-    static function retrieveAllWorkflowJobs() {
+    static function retrieveWorkflowJobs() {
         $kind_schema = self::getWorkflowJobKind();
-        $store = new Store($kind_schema);
+        $store = self::store($kind_schema);
         return $store->fetchAll();
+    }
+
+
+
+    static function retrieveWorkflowJob($workflow_job_key) {
+        $kind_schema = self::getWorkflowJobKind();
+        $cached = new Cached($kind_schema . "/" . $workflow_job_key);
+        if ($cached->exists()) {
+            return $cached->get();
+        }
+        $store = self::store($kind_schema);
+        $result = $store->fetchByName($workflow_job_key);
+        if ($result) {
+            return $result->getData();
+        } else {
+            return false;
+        }
     }
 
     static function saveWorkflowJob($workflow_job_key, $workflow_job_data) {
@@ -97,29 +141,13 @@ class DataStore {
         // caching data just to force this shit to work on the deveserver.
     }
 
-    static function retriveWorkflowJob($workflow_job_key) {
-        $kind_schema = self::getWorkflowJobKind();
-        $cached = new Cached($kind_schema . "/" . $workflow_job_key);
-        if($cached->exists()){
-            return $cached->get();
-        }
-        $store = new Store($kind_schema);
-        $result = $store->fetchByName($workflow_job_key);
-        if ($result) {
-            return $result->getData();
-        } else {
-            return false;
-        }
-
-    }
-
     /**
      * @param $workflow_key
      * @return array
      */
-    static function retriveMostCurrentWorkflowJob($workflow_key) {
+    static function retrieveMostCurrentWorkflowJob($workflow_key) {
         $kind_schema = self::getWorkflowJobKind();
-        $store = new Store($kind_schema);
+        $store = self::store($kind_schema);
         $result = $store->fetchOne("SELECT * FROM $kind_schema WHERE workflow_key='$workflow_key' ORDER BY created DESC");
         return $result->getData();
     }
@@ -130,9 +158,9 @@ class DataStore {
      * @param $status
      * @return array
      */
-    static function retrieveLastWorkflowJobByAgeAndStatus($workflow_key, $status, $created_after) {
+    static function retrieveMostCurrentWorkflowJobByAgeAndStatus($workflow_key, $status, $created_after) {
         $kind_schema = self::getWorkflowJobKind();
-        $store = new Store($kind_schema);
+        $store = self::store($kind_schema);
         $obsolete_time = new \DateTime($created_after);
         $where = [
             "workflow_key" => $workflow_key,

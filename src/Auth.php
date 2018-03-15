@@ -12,7 +12,7 @@ use google\appengine\api\users\UserService;
 
 class Auth {
 
-    static function getUserDataFromClient(\Google_Client $client) {
+    static function getUserDataFromGoogleClient(\Google_Client $client) {
         $service = new \Google_Service_Oauth2($client);
         $user_info = $service->userinfo_v2_me->get();
         $user_data = [
@@ -26,8 +26,8 @@ class Auth {
             "picture" => $user_info->getPicture(),
             "locale" => $user_info->getLocale(),
             "scopes" => $client->getScopes(),
-            "signup_application" => Util::get_current_application(),
-            "signup_service" => Util::get_current_module()
+            "signup_application" => Util::getApplicationId(),
+            "signup_service" => Util::getModuleId()
         ];
         $access_token = $client->getAccessToken();
         foreach (["access_token", "token_type", "expires_in", "refresh_token", "created"] as $key) {
@@ -37,19 +37,15 @@ class Auth {
     }
 
     static function getCallbackUrl() {
-        return Util::get_home_url() . Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
-    }
-
-    static function getClientSecret() {
-
+        return Util::getHomeUrl() . Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
     }
 
     static function getAuthRedirectUrl() {
-        $client = self::getClient();
+        $client = self::getGoogleClientByEmail();
         return $client->createAuthUrl();
     }
 
-    static function getScopes() {
+    static function getConfScopes() {
         $scopes = Conf::get("scopes", []);
         /**
          * Adding some default scopes. We probably should always know who the client is
@@ -63,31 +59,29 @@ class Auth {
     /**
      * @return \Google_Client
      */
-    static protected function _getClient() {
-        $client = GoogleAccess::get_google_client("GaeUtil Auth");
-        $client->addScope(self::getScopes());
+    static protected function getGoogleClient() {
+        $client = GoogleApis::getGoogleClient("GaeUtil Auth");
+        $client->addScope(self::getConfScopes());
         $client_json_path = Conf::getConfFilepath('client_secret.json');
         $client->setAuthConfig($client_json_path);
+        $client->useApplicationDefaultCredentials(false);
         return $client;
     }
 
     /**
-     * @TODO Shoudl be renamed getClientByEmail
      *
      * @return \Google_Client
      */
-    static function getClient($user_email = false) {
-        $client = self::_getClient();
+    static function getGoogleClientByEmail($email = false) {
+        $client = self::getGoogleClient();
+        $client->useApplicationDefaultCredentials(false);
         $client->setRedirectUri(self::getCallbackUrl());
         $client->setAccessType('offline');        // offline access
         $client->setIncludeGrantedScopes(true);   // incremental auth
         $client->setApprovalPrompt('force');
-        $current_user = UserService::getCurrentUser();
-        if ($current_user) {
-            $client->setLoginHint($current_user->getEmail());
-        }
-        if ($user_email) {
-            $user_data = DataStore::retriveTokenByUser($user_email);
+        $client->setLoginHint($email);
+        if ($email) {
+            $user_data = DataStore::retriveTokenByUserEmail($email);
             if ($user_data && $user_data->access_token) {
                 $user_data_content = $user_data->getData();
                 $client = self::refreshTokenIfExpired($user_data_content, $client);
@@ -96,22 +90,34 @@ class Auth {
         return $client;
     }
 
-    static function getCurrentUserEmail() {
-        $current_user = UserService::getCurrentUser();
-        $user_email = $current_user->getEmail();
-        return $user_email;
-    }
-
     static function getGoogleClientForCurrentUser() {
         $user_email = self::getCurrentUserEmail();
-        return self::getClient($user_email);
+        return self::getGoogleClientByEmail($user_email);
     }
 
-    static public function refreshTokenIfExpired($user_data_content, \Google_Client $client = null) {
+    /**
+     * @param $scope
+     * @return \Google_Client[]
+     */
+    static function getGoogleClientsByScope($scope, $domain = null) {
+        $data = DataStore::retriveTokensByScope($scope, $domain);
+        $clients = [];
+        foreach ($data as $i => $user_data_content) {
+            try {
+                $clients[] = Auth::refreshTokenIfExpired($user_data_content);
+            } catch (\Exception $e) {
+                syslog(LOG_WARNING, $e->getMessage());
+            }
+        }
+        return $clients;
+    }
+
+    static public function refreshTokenIfExpired($user_data_content, \Google_Client $client=null) {
         if (is_null($client)) {
-            $client = self::_getClient();
+            $client = self::getGoogleClient();
         }
         $client->setAccessToken($user_data_content);
+        $client->useApplicationDefaultCredentials(false);
         $user_email = $user_data_content["email"];
         if ($client->isAccessTokenExpired()) {
             Syslog(LOG_INFO, "Refreshing token for $user_email.");
@@ -131,7 +137,7 @@ class Auth {
 
     static function createLoginURL() {
         if (Util::isDevServer()) {
-            $root = Util::get_home_url();
+            $root = Util::getHomeUrl();
         } else {
             $root = "";
         }
@@ -141,7 +147,7 @@ class Auth {
 
     static function createLogoutURL() {
         if (Util::isDevServer()) {
-            return Util::get_home_url() . UserService::createLogoutURL("/");
+            return Util::getHomeUrl() . UserService::createLogoutURL("/");
         } else {
             return UserService::createLogoutURL("/");
         }
@@ -167,7 +173,7 @@ class Auth {
             $data["user_id"] = $current_user->getUserId();
             $data["user_email"] = $user_email;
             $data["user_nick"] = $current_user->getNickname();
-            $user_domain = Util::domain_from_email($user_email);
+            $user_domain = Util::getDomainFromEmail($user_email);
             $data["user_domain"] = $user_domain;
             if (in_array($user_domain, $authorized_domains) || $user_is_admin) {
                 $data["logged_in"] = true;
@@ -175,7 +181,7 @@ class Auth {
                 /**
                  * Getting data from the Google Client
                  */
-                $client = self::getClient($user_email);
+                $client = self::getGoogleClientByEmail($user_email);
                 $access_token = $client->getAccessToken();
                 if (is_null($access_token["access_token"])) {
                     $data["logged_in"] = false;
@@ -185,7 +191,7 @@ class Auth {
                 /**
                  * Getting previous stored data from DataStore
                  */
-                $user_data = DataStore::retriveTokenByUser($user_email);
+                $user_data = DataStore::retriveTokenByUserEmail($user_email);
                 if ($user_data) {
                     $user_data = $user_data->getData();
                     foreach (["family_name", "given_name", "name", "gender", "picture", "name", "locale", "verified_email"] as $key) {
@@ -210,32 +216,25 @@ class Auth {
      * @return mixed
      */
     static function fetchAndSaveTokenByCode($code) {
-        $client = self::getClient();
+        $client = self::getGoogleClientByEmail();
         $client->fetchAccessTokenWithAuthCode($code);
-        $user_data = self::getUserDataFromClient($client);
+        $user_data = self::getUserDataFromGoogleClient($client);
         $user_email = $user_data["email"];
         DataStore::saveToken($user_email, $user_data);
         return $user_data;
     }
 
-    /**
-     * @param $scope
-     * @return \Google_Client[]
-     */
-    static function getGoogleClientsByScope($scope, $domain = null) {
-        $data = DataStore::retriveTokensByScope($scope, $domain);
-        $clients = [];
-        foreach ($data as $i => $user_data_content) {
-            try {
-                $clients[] = Auth::refreshTokenIfExpired($user_data_content);
-            } catch (\Exception $e) {
-                syslog(LOG_WARNING, $e->getMessage());
-            }
-        }
-        return $clients;
+    static function getCurrentUserEmail() {
+        return UserService::getCurrentUser()->getEmail();
+
     }
 
-    static function callback_handler($get_request) {
+    static function getCurrentUserEmailDomain() {
+        $email = self::getCurrentUserEmail();
+        return Util::getDomainFromEmail($email);
+    }
+
+    static function callbackHandler($get_request) {
         try {
             /**
              * Accepting multiple auth cycles.
@@ -288,13 +287,4 @@ class Auth {
 
     }
 
-    static function get_current_user_email() {
-        return UserService::getCurrentUser()->getEmail();
-
-    }
-
-    static function get_current_user_domain() {
-        $email = self::get_current_user_email();
-        return Util::domain_from_email($email);
-    }
 }

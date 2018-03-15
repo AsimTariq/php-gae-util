@@ -2,23 +2,10 @@
 
 namespace GaeUtil;
 
-use DateInterval;
 use DateTime;
 use google\appengine\api\app_identity\AppIdentityService;
 
 class Util {
-
-    /**
-     * Finner neste timestamp basert på input tid.
-     * @param type $time
-     * @return type
-     */
-    static public function nextSameWeekday($time) {
-        $originalTime = strtotime($time);
-        $nextWeekdayText = date("l");
-        $nextWeekday = strtotime("next " . $nextWeekdayText);
-        return strtotime(date("Y-m-d", $nextWeekday) . " " . date("H:i:s", $originalTime));
-    }
 
     static public function quoteArray($array) {
         $quotedvalues = [];
@@ -28,65 +15,12 @@ class Util {
         return implode(",", $quotedvalues);
     }
 
-    static function ymdDate($time = null) {
-        return date("Y-m-d", $time);
-    }
-
-    static function strtoYdate($string) {
-        return self::ymdDate(strtotime($string));
-    }
-
-    static function todayYmd() {
-        return date("Y-m-d");
-    }
-
-    static function yesterday() {
-        return Util::dateBefore(Util::todayYmd());
-    }
-
-    static function strtodate($str) {
-        return date("Y-m-d", strtotime($str));
-    }
-
-    static function timetodate($time) {
-        return date("Y-m-d", $time);
-    }
-
-    static function dateBefore($date) {
-        return date("Y-m-d", strtotime($date . " -1 day"));
-    }
-
-    static function dateAfter($date) {
-        return date("Y-m-d", strtotime($date . " +1 day"));
-    }
-
-    static function getLastDay($first_period, $length) {
-        if (is_string($first_period)) {
-            $thisDateTime = new DateTime($first_period);
-        } else {
-            $thisDateTime = $first_period;
-        }
-        $thisDateTime->add(new DateInterval("P" . $length . "M"));
-        $thisDateTime->sub(new DateInterval("P1D"));
-        return $thisDateTime;
-    }
-
-    static function getPeriods($first_period, $length) {
-        $first_month = new DateTime($first_period);
-        $output = array();
-        for ($i = 1; $i <= $length; $i++) {
-            $output[] = clone $first_month;
-            $first_month->add(new DateInterval("P1M"));
-        }
-        return $output;
-    }
-
     /**
      * Used to inspect shit
      *
      * @param type $filename
      */
-    static function save_included_files($filename, $fromFile) {
+    static function saveIncludedFiles($filename, $fromFile) {
         if (file_exists($filename)) {
             $all_included_files = json_decode(file_get_contents($filename), JSON_OBJECT_AS_ARRAY);
         } else {
@@ -135,15 +69,15 @@ class Util {
         return "http" . ($_SERVER["HTTPS"] === "on" ? "s" : "") . "://";
     }
 
-    static function get_home_url() {
+    static function getHomeUrl() {
         return self::getProtocol() . $_SERVER["HTTP_HOST"];
     }
 
-    static function get_full_path($path, $query = "") {
+    static function getFullPath($path, $query = "") {
         if (is_array($query)) {
             $query = "?" . http_build_query($query);
         }
-        return self::get_home_url() . $path . $query;
+        return self::getHomeUrl() . $path . $query;
     }
 
     static function offset_array($data, $offset, $limit) {
@@ -157,7 +91,7 @@ class Util {
         return $offset_data;
     }
 
-    static function sort_by_key(&$data, $key) {
+    static function sortByKey(&$data, $key) {
         if ($key[0] === "-") {
             $asc = false;
             $key = ltrim($key, '-');
@@ -181,7 +115,7 @@ class Util {
      * @param     string
      * @return    bool
      */
-    static function starts_with($haystack, $needle) {
+    static function startsWith($haystack, $needle) {
         return strpos($haystack, $needle) === 0;
     }
 
@@ -189,7 +123,7 @@ class Util {
         echo $message . PHP_EOL;
     }
 
-    static function get_random_array_elements($input_array, $min = 1, $max = 3) {
+    static function getRandomArrayElements($input_array, $min = 1, $max = 3) {
         $number_for_client = rand($min, $max);
         $random = array_rand($input_array, $number_for_client);
         $output_array = [];
@@ -203,7 +137,7 @@ class Util {
         return $output_array;
     }
 
-    static function get_root_domain($siteurl) {
+    static function getRootDomain($siteurl) {
         $url_host = parse_url($siteurl, PHP_URL_HOST);
         $parts = explode(".", $url_host);
         return $parts[count($parts) - 2];
@@ -236,61 +170,49 @@ class Util {
      * @return bool|string
      */
     static function resolveFilePath() {
-
         $filepath = implode(DIRECTORY_SEPARATOR, func_get_args());
         $filepath_real = realpath($filepath);
         return $filepath_real;
     }
 
-    static function get_current_module() {
+    static function getModuleId() {
         return getenv("CURRENT_MODULE_ID");
     }
 
-    static function get_current_application() {
+    static function getApplicationId() {
         return AppIdentityService::getApplicationId();
-
-    }
-
-    static function get_current_user_email() {
-        syslog(LOG_WARNING, "Moved to Auth-module.");
-        return Auth::get_current_user_email();
 
     }
 
     /**
      * @param $array_name
      * @param $array
-     * @param $required_key
+     * @param $required_keys
      * @throws \Exception
      */
-    static function key_exist_or_fail($array_name, $array, $required_key) {
-        if (is_array($required_key)) {
-            foreach ($required_key as $key) {
-                self::key_exist_or_fail($array_name, $array, $key);
+    static function keysExistsOrFail($array_name, $array, $required_keys) {
+        if (is_array($required_keys)) {
+            foreach ($required_keys as $key) {
+                self::keysExistsOrFail($array_name, $array, $key);
             }
         } else {
-            if (!isset($array[$required_key])) {
-                throw new \Exception("$array_name need the '$required_key' parameter");
+            if (!isset($array[$required_keys])) {
+                throw new \Exception("$array_name need the '$required_keys' parameter");
             }
         }
 
     }
 
-    static function is_array_or_fail($array_name, $array) {
+    static function isArrayOrFail($array_name, $array) {
         if (!is_array($array)) {
             throw new \Exception("$array_name should be an array.");
         }
     }
 
-    static function get_tempfilename() {
-        $module = self::get_current_module();
-        return tempnam(sys_get_temp_dir(), $module);
-    }
-
     /**
      * @return bool|string
      */
-    static function path_maker() {
+    static function pathmaker() {
         $path_parts = [];
         foreach (func_get_args() as $string) {
             $string = str_replace("\\", "/", $string);
@@ -302,15 +224,7 @@ class Util {
         return $path;
     }
 
-    static function command_maker($command, $params = []) {
-        $parts = [$command];
-        foreach ($params as $key => $val) {
-            $parts[] = "--$key=$val";
-        }
-        return implode(" ", $parts);
-    }
-
-    static function domain_from_email($email) {
+    static function getDomainFromEmail($email) {
         // make sure we've got a valid email
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             // split on @ and return last value of array (the domain)
@@ -322,7 +236,7 @@ class Util {
 
     }
 
-    static function local_part_from_email($email) {
+    static function getLocalPartFromEmail($email) {
         // make sure we've got a valid email
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             // split on @ and return last value of array (the domain)
@@ -331,6 +245,10 @@ class Util {
         } else {
             return false;
         }
+    }
+
+    static function print_pre($mixed) {
+        echo("<pre>" . print_r($mixed, 1) . "</pre>");
     }
 }
 

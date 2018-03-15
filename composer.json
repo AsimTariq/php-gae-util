@@ -2,7 +2,7 @@
   "name": "mijohansen/php-gae-util",
   "description": "Description of project php-gae-util.",
   "type": "library",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "minimum-stability": "dev",
   "license": "Apache-2.0",
   "authors": [
@@ -15,7 +15,7 @@
     "php": ">=5.5",
     "google/apiclient": "v2.*",
     "tomwalder/php-gds": "v4.*",
-    "hassankhan/config": "v0.*",
+    "hassankhan/config": "v1.*",
     "google/appengine-php-sdk": "v1.*",
     "monolog/monolog": "v1.*",
     "google/cloud-storage": "v1.*"
@@ -30,8 +30,6 @@
     "phpunit/phpunit": "^7"
   },
   "scripts": {
-    "test": "phpunit",
-    "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
-    "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses"
+    "test": "phpunit"
   }
 }

@@ -10,8 +10,8 @@ namespace GaeUtil;
 
 class CloudSQL {
 
-    static function clone_prod_database($project, $instance, $database, $bucket, $local_user = null, $local_pass = null) {
-        $client = GoogleAccess::get_google_client(__METHOD__);
+    static function cloneProdDatabase($project, $instance, $database, $bucket, $local_user = null, $local_pass = null) {
+        $client = GoogleApis::getGoogleClient(__METHOD__);
         $client->addScope('https://www.googleapis.com/auth/cloud-platform');
         $service = new \Google_Service_SQLAdmin($client);
         $uri = "gs://{$bucket}/{$database}.sql";

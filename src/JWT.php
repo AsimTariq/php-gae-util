@@ -39,7 +39,7 @@ class JWT {
             /**
              * Creating a token with the current module identity for reference.
              */
-            $email = Util::get_current_module() . "@" . Util::get_current_application();
+            $email = Util::getModuleId() . "@" . Util::getApplicationId();
         }
         if (is_null($cache[$email])) {
             $payload = [
@@ -64,7 +64,7 @@ class JWT {
         if (is_null($token)) {
             $payload = [
                 "exp" => time() + Moment::ONEHOUR,
-                "sub" => Util::get_current_module() . "@" . Util::get_current_application()
+                "sub" => Util::getModuleId() . "@" . Util::getApplicationId()
             ];
             $secret = self::getSecret(self::CONF_INTERNAL_SECRET_NAME);
             $token = \Firebase\JWT\JWT::encode($payload, $secret, self::ALG);
@@ -96,8 +96,8 @@ class JWT {
         static $token;
         if (is_null($token)) {
             $payload = [
-                "exp" => time() + Moment::ONEHOUR,
-                "sub" => Util::get_current_module() . "@" . Util::get_current_application()
+                "sub" => Util::getModuleId() . "@" . Util::getApplicationId(),
+                "scope" => $scope
             ];
             $secret = self::getSecret(self::CONF_SCOPED_SECRET_NAME);
             $token = \Firebase\JWT\JWT::encode($payload, $secret, self::ALG);
@@ -114,24 +114,24 @@ class JWT {
     static public function getSecret($type = "jwt_external_secret") {
         $jwt_secret = Conf::get($type);
         if (is_null($jwt_secret)) {
-            throw new \Exception("Trying to use JWT functions without a secret. This has to be set.");
+            throw new \Exception("Trying to use JWT functions without a secret. Can't find $type in conf.");
         }
         return base64_decode($jwt_secret);
     }
 
-    public static function get_internal_secret() {
+    public static function getInternalSecret() {
         return self::getSecret(self::CONF_INTERNAL_SECRET_NAME);
     }
 
-    public static function get_external_secret() {
+    public static function getExternalSecret() {
         return self::getSecret(self::CONF_EXTERNAL_SECRET_NAME);
     }
 
-    public static function get_scoped_secret() {
+    public static function getScopedSecret() {
         return self::getSecret(self::CONF_SCOPED_SECRET_NAME);
     }
 
-    public static function acceptJWTTokenInUrl() {
+    public static function acceptTokenInURL() {
         $token = (isset($_GET['token']) && !empty($_GET['token'])) ? trim($_GET['token']) : false;
         if ($token) {
             $_SERVER["HTTP_AUTHORIZATION"] = "Bearer " . $token;
@@ -140,16 +140,15 @@ class JWT {
 
     static public function getSecureUrl($path, $query_data = []) {
         $query_data["token"] = self::getTokenForCurrentUser();
-        return Util::get_full_path($path, $query_data);
+        return Util::getFullPath($path, $query_data);
     }
 
     static public function getTokenForCurrentUser() {
-        $user = UserService::getCurrentUser();
-        return self::get($user->getEmail());
+        return self::get(Auth::getCurrentUserEmail());
     }
 
-    static function generate_secret() {
-        $random_pseudo_bytes = openssl_random_pseudo_bytes(32);
+    static function generateSecret($length=32) {
+        $random_pseudo_bytes = openssl_random_pseudo_bytes($length);
         return base64_encode($random_pseudo_bytes);
     }
 
