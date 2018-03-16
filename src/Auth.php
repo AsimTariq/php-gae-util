@@ -224,8 +224,19 @@ class Auth {
         return $user_data;
     }
 
+    /**
+     * Returns the current user email, or false if the user is not logged in.
+     *
+     * @return bool|string
+     */
     static function getCurrentUserEmail() {
-        return UserService::getCurrentUser()->getEmail();
+        $current_user = UserService::getCurrentUser();
+        if ($current_user) {
+            return $current_user->getEmail();
+        } else {
+            return false;
+        }
+
 
     }
 

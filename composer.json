@@ -2,7 +2,7 @@
   "name": "mijohansen/php-gae-util",
   "description": "Description of project php-gae-util.",
   "type": "library",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "minimum-stability": "dev",
   "license": "Apache-2.0",
   "authors": [
