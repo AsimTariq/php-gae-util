@@ -48,16 +48,20 @@ class Conf {
                 /**
                  * Fetching encoded microservice secrets and storing them in cache.
                  */
-                $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME);
+                $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME,false);
                 try {
-                    syslog(LOG_INFO, "Fetching... " . $global_config_file);
-                    if (Util::isDevServer()) {
-                        $array_w_secrets = Files::getStorageJson($global_config_file, false);
-                    } else {
-                        $array_w_secrets = Files::getJson($global_config_file, false);
+                    if($global_config_file){
+                        syslog(LOG_INFO, "Fetching... " . $global_config_file);
+                        if (Util::isDevServer()) {
+                            $array_w_secrets = Files::getStorageJson($global_config_file, false);
+                        } else {
+                            $array_w_secrets = Files::getJson($global_config_file, false);
+                        }
+                        if($array_w_secrets){
+                            $data = Secrets::decryptDotSecrets($array_w_secrets);
+                            $secret_data = array_merge_recursive($secret_data, $data);
+                        }
                     }
-                    $data = Secrets::decryptDotSecrets($array_w_secrets);
-                    $secret_data = array_merge_recursive($secret_data, $data);
                     /**
                      * Creating internal secret for service to frontend communication.
                      */

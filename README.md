@@ -38,3 +38,51 @@ $ gcloud beta emulators datastore start
 ```
 
 
+#### For local development
+My strategy for developing packages for packagist is as following.
+
+* Create a local folder where you symlink packages
+
+In
+
+~/composer/config.json
+
+add, this also works with using the projects composer.json file, but
+then you might get problems on other developers computers and in
+pipelines.
+
+```json
+{
+  "repositories": [
+    {
+      "type": "path",
+      "url": "~/path/to/liberary/root",
+      "options": {
+        "symlink": true
+      }
+    }
+  ]
+}
+```
+
+This will now create a link. Two tricks for getting a more problem free
+start of development is to add your liberary with "*" for and set minimum
+stability in the local composer.json for the liberary that requires your
+packages:
+
+```json
+{
+  "minimum-stability": "dev",
+  "require": {
+    "mijohansen/php-gae-util": "*"
+  }
+}
+```
+
+
+
+
+
+
+
+
