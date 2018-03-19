@@ -54,7 +54,7 @@ class Moment {
     }
 
     static function yesterday() {
-        return Util::dateBefore(Util::todayYmd());
+        return self::dateBefore(self::todayYmd());
     }
 
     static function strtodate($str) {

@@ -65,23 +65,33 @@ class Workflow {
         return false;
     }
 
+    /**
+     * Returns Workflow_Job_Config
+     *
+     * @param $workflow_key
+     * @return array
+     */
     static function runFromKey($workflow_key) {
-        $workflowConfig = self::getWorkflowConfig($workflow_key);
-        $workflow_job_key = self::create_workflow_job_key();
+        $workflow_config = self::getWorkflowConfig($workflow_key);
+        $workflow_job_key = self::createWorkflowJobKey();
+        $workflow_job_config = self::createJobConfig($workflow_config);
         try {
-            $workflowState = self::startJob($workflow_job_key, $workflowConfig);
-            $endState = self::runFromConfig($workflowConfig, $workflowState);
-            if ($endState) {
-                return self::endJob($workflow_job_key, $endState);
+            $start_state = self::getWorkflowState($workflow_key);
+            $workflow_job_config = self::startJob($workflow_job_key, $workflow_job_config, $start_state);
+            $end_state = self::runFromConfig($workflow_config, $start_state);
+            if ($end_state) {
+                return self::endJob($workflow_job_key, $workflow_job_config, $end_state);
             } else {
-                return self::failJob($workflow_job_key, "Job failed, Unknown error. Returned empty state.");
+                return self::failJob($workflow_job_key, $workflow_job_config, "Job failed, Unknown error. Returned empty state.");
             }
         } catch (\Exception $exception) {
-            return self::failJob($workflow_job_key, $exception->getMessage());
+            return self::failJob($workflow_job_key, $workflow_job_config, $exception->getMessage());
         }
     }
 
     /**
+     * This does not do any checks towards the database if there is jobs running.
+     *
      * @param $workflow_config
      * @param $state
      * @return mixed
@@ -137,7 +147,7 @@ class Workflow {
         return true;
     }
 
-    static function create_workflow_job_key() {
+    static function createWorkflowJobKey() {
         return uniqid();
     }
 
@@ -158,7 +168,8 @@ class Workflow {
      * Will check the last successful job and retrive state from it.
      *
      * @param $workflow_key
-     * @return array
+     * @return mixed
+     * @throws \Exception
      */
     static function getWorkflowState($workflow_key) {
         $status = self::STATUS_COMPLETED;
@@ -190,32 +201,33 @@ class Workflow {
         return $result;
     }
 
+    static function createJobConfig($workflow_config) {
+        return [
+            self::CONF_HANDLER => $workflow_config[self::CONF_HANDLER],
+            self::CONF_PARAMS => $workflow_config[self::CONF_PARAMS],
+            "name" => $workflow_config["name"],
+            "workflow_key" => self::createWorkflowKeyFromConfig($workflow_config),
+            "status" => "CREATED",
+            "start_state" => null,
+            "end_state" => null,
+            "message" => null,
+            "created" => new \DateTime()
+        ];
+    }
+
     /**
      * Returns the workflow state from previous job.
      * Performs the check on the previous job. Returns the state form the previous job.
      *
-     * @param $workflow_config
-     * @param $message
+     * @param $workflow_job_key
+     * @param $workflow_job_config
+     * @param $start_state
+     * @return array
+     * @throws \Exception
      */
-    static function startJob($workflow_job_key, $workflow_config) {
-        $workflow_key = self::createWorkflowKeyFromConfig($workflow_config);
-        $workflow_name = $workflow_config["name"];
-
-        /**
-         * Creating job in database regardless.
-         */
-        unset($workflow_config["active"]);
-        unset($workflow_config[self::CONF_INITIAL_STATE]);
-        $start_state = self::getWorkflowState($workflow_key);
-        $workflow_job_data = array_merge($workflow_config, [
-            "workflow_key" => $workflow_key,
-            "status" => self::STATUS_RUNNING,
-            "start_state" => $start_state,
-            "message" => "Job started...",
-            "created" => new \DateTime()
-        ]);
-        DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_data);
-
+    static function startJob($workflow_job_key, $workflow_job_config, $start_state) {
+        $workflow_key = self::createWorkflowKeyFromConfig($workflow_job_config);
+        $workflow_name = $workflow_job_config["name"];
         /**
          * Checking if a flow is already running
          */
@@ -230,23 +242,30 @@ class Workflow {
             throw new \Exception("A job for $workflow_name have failed less than $error_ttl seconds ago, skipping.");
         }
 
-        return $start_state;
+        $workflow_job_config = array_merge($workflow_job_config, [
+            "status" => self::STATUS_RUNNING,
+            "start_state" => $start_state
+        ]);
+        DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_config);
+        return $workflow_job_config;
     }
 
     /**
      * Returnes a report.
      *
-     * @param $workflow_config
+     * @param $workflow_job_key
+     * @param $workflow_job_config
      * @param $message
+     * @return array
      */
-    static function failJob($workflow_job_key, $message) {
-        $workflow_job_data = DataStore::retrieveWorkflowJob($workflow_job_key);
-        $workflow_job_data["status"] = self::STATUS_FAILED;
-        $workflow_job_data["end_state"] = $workflow_job_data["start_state"];
-        $workflow_job_data["message"] = $message;
-        $workflow_job_data["finished"] = new \DateTime();
-        DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_data);
-        return $workflow_job_data["end_state"];
+    static function failJob($workflow_job_key, $workflow_job_config, $message) {
+        $workflow_job_config = array_merge($workflow_job_config, [
+            "status" => self::STATUS_FAILED,
+            "message" => $message,
+            "finished" => new \DateTime()
+        ]);
+        DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_config);
+        return $workflow_job_config;
     }
 
     /**
@@ -257,14 +276,14 @@ class Workflow {
      * @param string $message
      * @return array
      */
-    static function endJob($workflow_job_key, $end_state = [], $message = "") {
-        $workflow_job_data = DataStore::retrieveWorkflowJob($workflow_job_key);
-        $workflow_job_data["status"] = self::STATUS_COMPLETED;
-        $workflow_job_data["end_state"] = $end_state;
-        $workflow_job_data["message"] = $message;
-        $workflow_job_data["finished"] = new \DateTime();
-        DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_data);
-        return $workflow_job_data["end_state"];
+    static function endJob($workflow_job_key, $workflow_job_config, $end_state = []) {
+        $workflow_job_config = array_merge($workflow_job_config, [
+            "status" => self::STATUS_COMPLETED,
+            "end_state" => $end_state,
+            "finished" => new \DateTime()
+        ]);
+        DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_config);
+        return $workflow_job_config;
     }
 
     static function endpointHandler($get_request) {

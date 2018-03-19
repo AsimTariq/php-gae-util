@@ -8,7 +8,9 @@
 
 namespace GaeUtil;
 
+use GDS\Entity;
 use GDS\Gateway;
+use GDS\Gateway\RESTv1;
 use GDS\Store;
 
 class DataStore {
@@ -34,11 +36,11 @@ class DataStore {
     }
 
     static function getGoogleAccessTokenKind() {
-        return Conf::get("datastore_kind", SELF::DEFAULT_TOKEN_KIND);
+        return Conf::get("datastore_kind", self::DEFAULT_TOKEN_KIND);
     }
 
     static function getWorkflowKind() {
-        return Conf::get(SELF::CONF_WORKFLOW_KIND_KEY, SELF::DEFAULT_WORKFLOW_KIND);
+        return Conf::get(self::CONF_WORKFLOW_KIND_KEY, self::DEFAULT_WORKFLOW_KIND);
     }
 
     static function getWorkflowJobKind() {
@@ -46,7 +48,7 @@ class DataStore {
     }
 
     static function deleteAll($kind_schema) {
-        if (Util::isDevServer()) {
+        if (Util::isDevServer() || Util::isCli()) {
             $store = self::store($kind_schema);
             $entities = $store->fetchAll();
             syslog(LOG_INFO, "Found " . count($entities) . " records from $kind_schema, deleting them ALL.");
@@ -54,8 +56,12 @@ class DataStore {
         } else {
             throw new \Exception("GaeUtil refuse to run delete all in production.");
         }
-
     }
+
+    static function deleteWorkflowJobs() {
+        return self::deleteAll(self::getWorkflowJobKind());
+    }
+
 
     static function saveToken($user_email, $user_data) {
         $kind_schema = self::getGoogleAccessTokenKind();
@@ -65,8 +71,7 @@ class DataStore {
 
     static function retriveTokenByUserEmail($user_email) {
         $kind_schema = self::getGoogleAccessTokenKind();
-        $store = self::store($kind_schema);
-        return $store->fetchByName($user_email);
+        return self::fetchAll($kind_schema);
     }
 
     /**
@@ -81,14 +86,29 @@ class DataStore {
         return self::fetchAll($kind_schema, $str_query);
     }
 
-    static function fetchAll($kind_schema, $str_query) {
+    static function fetchAll($kind_schema, $str_query = null) {
         $store = self::store($kind_schema);
         $result = $store->fetchAll($str_query);
         $output = [];
         foreach ($result as $row) {
-            $output[] = $row->getData();
+            $output[] = self::flattenRow($row);
         }
         return $output;
+    }
+
+    static function flattenRow($input_row) {
+        if (is_a($input_row, Entity::class)) {
+            $output_row = $input_row->getData();
+            foreach ($output_row as $key => $data) {
+                if (is_a($data, \DateTime::class)) {
+                    $output_row[$key] = $data->format("c");
+                }
+            }
+            return $output_row;
+        } else {
+            $output_row = $input_row;
+        }
+        return $output_row;
     }
 
     static function saveWorkflow($key, $workflow_config) {
@@ -112,11 +132,8 @@ class DataStore {
 
     static function retrieveWorkflowJobs() {
         $kind_schema = self::getWorkflowJobKind();
-        $store = self::store($kind_schema);
-        return $store->fetchAll();
+        return self::fetchAll($kind_schema);
     }
-
-
 
     static function retrieveWorkflowJob($workflow_job_key) {
         $kind_schema = self::getWorkflowJobKind();
@@ -177,6 +194,14 @@ class DataStore {
         } else {
             return false;
         }
+    }
+
+    static function changeToTestMode() {
+        $str_project_id = getenv("DATASTORE_PROJECT_ID");
+        Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST");
+        Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST_PATH");
+        Util::envReplace("::1", "localhost", "DATASTORE_HOST");
+        self::setGateway(new RESTv1($str_project_id));
     }
 
 }

@@ -17,7 +17,7 @@ class GoogleApis {
     }
 
     static function webmastersReadonly() {
-        $scope = Google_Service_Webmasters::WEBMASTERS_READONLY;
+        $scope = \Google_Service_Webmasters::WEBMASTERS_READONLY;
         $clients = Auth::getGoogleClientsByScope($scope);
         $accounts = [];
         foreach ($clients as $client) {

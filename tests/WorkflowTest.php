@@ -7,9 +7,8 @@
  */
 
 use GaeUtil\DataStore;
-use GaeUtil\Util;
+use GaeUtil\Moment;
 use GaeUtil\Workflow;
-use GDS\Gateway\RESTv1;
 use PHPUnit\Framework\TestCase;
 
 class WorkflowTest extends TestCase {
@@ -17,13 +16,11 @@ class WorkflowTest extends TestCase {
     protected $workflowClassName = "TestClassForWorkflows";
 
     public function setUp() {
-        putenv("DATASTORE_EMULATOR_HOST=localhost:8081");
-        DataStore::setGateway(new RESTv1("php-gae-util"));
+        DataStore::changeToTestMode();
         $WorkflowKind = DataStore::getWorkflowKind();
         $WorkflowJobKind = Datastore::getWorkflowJobKind();
         DataStore::deleteAll($WorkflowKind);
         DataStore::deleteAll($WorkflowJobKind);
-        //sleep(1);
     }
 
     /**
@@ -58,9 +55,10 @@ class WorkflowTest extends TestCase {
             Workflow::CONF_INITIAL_STATE => $initial_state,
         ]);
         $workflow_job_key = __METHOD__;
-        $state = Workflow::startJob($workflow_job_key, $workflow_config);
-        Workflow::endJob($workflow_job_key, $initial_state);
-        $this->assertEquals($initial_state, $state);
+        $workflow_job_config = Workflow::createJobConfig($workflow_config);
+        $workflow_job_config = Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
+        $workflow_job_config = Workflow::endJob($workflow_job_key, $workflow_job_config, $initial_state);
+        $this->assertEquals($initial_state, $workflow_job_config["end_state"]);
         /**
          * Trying to start another job... this should fail
          */
@@ -77,9 +75,9 @@ class WorkflowTest extends TestCase {
             Workflow::CONF_PARAMS => $initial_params,
             Workflow::CONF_INITIAL_STATE => $initial_state,
         ]);
-        Workflow::startJob(__METHOD__, $workflow_config);
-        Workflow::failJob(__METHOD__, "Testing failed!");
-        //sleep(1);
+        $workflow_job_config = Workflow::createJobConfig($workflow_config);
+        Workflow::startJob(__METHOD__, $workflow_job_config, $initial_state);
+        Workflow::failJob(__METHOD__, $workflow_job_config, "Testing failed!");
         $job = DataStore::retrieveWorkflowJob(__METHOD__);
         $this->assertEquals(Workflow::STATUS_FAILED, $job["status"]);
     }
@@ -95,10 +93,11 @@ class WorkflowTest extends TestCase {
             Workflow::CONF_PARAMS => $initial_params,
             Workflow::CONF_INITIAL_STATE => $initial_state,
         ]);
-        Workflow::startJob(__METHOD__, $workflow_config);
-        Workflow::endJob(__METHOD__);
-        //sleep(1);
-        $job = DataStore::retrieveWorkflowJob(__METHOD__);
+        $workflow_job_key  = Workflow::createWorkflowJobKey();
+        $workflow_job_config = Workflow::createJobConfig($workflow_config);
+        $workflow_job_config = Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
+        Workflow::endJob($workflow_job_key, $workflow_job_config, $initial_state);
+        $job = DataStore::retrieveWorkflowJob($workflow_job_key);
         $this->assertEquals(Workflow::STATUS_COMPLETED, $job["status"]);
 
     }
@@ -115,11 +114,12 @@ class WorkflowTest extends TestCase {
             Workflow::CONF_PARAMS => $initial_params,
             Workflow::CONF_INITIAL_STATE => $initial_state,
         ]);
-        $workflow_job_key = __METHOD__;
-        Workflow::startJob($workflow_job_key, $workflow_config);
-        //sleep(1); // sleep for some weird irritating reason
-        $workflow_job_key = __METHOD__ . "-should-not-start";
-        Workflow::startJob($workflow_job_key, $workflow_config);
+        $workflow_job_key = Workflow::createWorkflowJobKey();
+        $workflow_job_config = Workflow::createJobConfig($workflow_config);
+        Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
+
+        $workflow_job_key = Workflow::createWorkflowJobKey();
+        Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
 
     }
 
@@ -128,7 +128,7 @@ class WorkflowTest extends TestCase {
      */
     public function testJobRunner() {
         $initial_state = ["2018-01-01"];
-        $expected_state = [Util::dateAfter("2018-01-01")];
+        $expected_state = [Moment::dateAfter("2018-01-01")];
         $initial_params = ["parameter1", "parameter2"];
         $workflow_config = Workflow::createWorkflow([
             Workflow::CONF_HANDLER => $this->workflowClassName,
@@ -136,7 +136,6 @@ class WorkflowTest extends TestCase {
             Workflow::CONF_INITIAL_STATE => $initial_state,
         ]);
         $workflow_key = Workflow::createWorkflowKeyFromConfig($workflow_config);
-        //sleep(1);
         $pre_job_state = Workflow::getWorkflowState($workflow_key);
         $after_run_state = Workflow::runFromConfig($workflow_config, $initial_state);
         $this->assertEquals($expected_state, $after_run_state, "State after a simple run should equal todays date.");
@@ -149,7 +148,7 @@ class WorkflowTest extends TestCase {
      */
     public function testRunFromKey() {
         $initial_state = ["2018-01-01"];
-        $date_after = Util::dateAfter($initial_state[0]);
+        $date_after = Moment::dateAfter($initial_state[0]);
         $expected_state = [$date_after];
         $initial_params = ["parameter1", "parameter2"];
         $workflow_config = Workflow::createWorkflow([
@@ -158,11 +157,10 @@ class WorkflowTest extends TestCase {
             Workflow::CONF_INITIAL_STATE => $initial_state,
         ]);
         $workflow_key = Workflow::createWorkflowKeyFromConfig($workflow_config);
-        $result_state = Workflow::runFromKey($workflow_key);
-        //sleep(1);
+        $result = Workflow::runFromKey($workflow_key);
         $persisted_state = Workflow::getWorkflowState($workflow_key);
-        $this->assertEquals($expected_state, $result_state, "Run state should produce the next day.");
-        $this->assertEquals($result_state, $persisted_state, "State should be persisted.");
+        $this->assertEquals($expected_state, $result["end_state"], "Run state should produce the next day.");
+        $this->assertEquals($result["end_state"], $persisted_state, "State should be persisted.");
     }
 
 }

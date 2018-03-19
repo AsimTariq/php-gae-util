@@ -11,3 +11,7 @@ date_default_timezone_set('UTC');
 require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 // Base Test Files
 require_once(dirname(__FILE__) . '/base/TestClassForWorkflows.php');
+
+use GaeUtil\DataStore;
+
+DataStore::changeToTestMode();

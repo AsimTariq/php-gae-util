@@ -18,7 +18,7 @@ class Util {
     /**
      * Used to inspect shit
      *
-     * @param type $filename
+     * @param string $filename
      */
     static function saveIncludedFiles($filename, $fromFile) {
         if (file_exists($filename)) {
@@ -146,6 +146,9 @@ class Util {
     static function isDevServer() {
         return (strpos(getenv('SERVER_SOFTWARE'), 'Development') === 0);
     }
+    static function isCli(){
+        return (php_sapi_name() === "cli");
+    }
 
     static function getVendorDir() {
         if (defined("COMPOSER_VENDOR_DIR")) {
@@ -249,6 +252,12 @@ class Util {
 
     static function print_pre($mixed) {
         echo("<pre>" . print_r($mixed, 1) . "</pre>");
+    }
+
+    static function envReplace($searh, $replace,$varname){
+        $value = getenv($varname);
+        $value = str_replace($searh, $replace, $value);
+        putenv("$varname=$value");
     }
 }
 

@@ -19,6 +19,9 @@ class Fetch {
      * @throws \Exception
      */
     static public function secureUrl($url, $params = []) {
+        if (is_array($url)) {
+            $url = implode("/", $url);
+        }
         $headers = [
             "Authorization: Bearer " . JWT::getInternalToken()
         ];
@@ -32,7 +35,7 @@ class Fetch {
         if (count($params)) {
             $url = $url . "?" . http_build_query($params);
         }
-        syslog(LOG_INFO, "fetching: " . $url);
+        syslog(LOG_INFO, __METHOD__ . " fetching: " . $url);
         $content = file_get_contents($url, false, $stream_context);
         $result = json_decode($content, JSON_OBJECT_AS_ARRAY);
         return $result;
@@ -47,6 +50,9 @@ class Fetch {
      * @throws \Exception
      */
     static public function secureUrlCached($url, $params = []) {
+        if (is_array($url)) {
+            $url = implode("/", $url);
+        }
         $cacheKey = Cached::keymaker(__METHOD__, $url, $params);
         $cached = new Cached($cacheKey, false);
         if (!$cached->exists()) {
