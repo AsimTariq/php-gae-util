@@ -39,9 +39,13 @@ class Files {
         return $storageClient;
     }
 
-    static function ensureStreamwrappersRegistered($filename) {
+    static function isStorageFilename($filename) {
         $scheme = parse_url($filename, PHP_URL_SCHEME);
-        if ($scheme == "gs" && !in_array('gs', stream_get_wrappers())) {
+        return ($scheme === "gs");
+    }
+
+    static function ensureStreamwrappersRegistered($filename) {
+        if (self::isStorageFilename($filename) && !in_array('gs', stream_get_wrappers())) {
             $client = self::getStorageClient();
             $client->registerStreamWrapper();
         }
@@ -90,7 +94,9 @@ class Files {
 
     static function getJson($filename, $default = null) {
         self::ensureStreamwrappersRegistered($filename);
-        if (file_exists($filename)) {
+        if (Util::isDevServer() && self::isStorageFilename($filename)) {
+            $data = self::getStorageJson($filename, $default);
+        } elseif (file_exists($filename)) {
             $json = file_get_contents($filename);
             $data = json_decode($json, JSON_OBJECT_AS_ARRAY);
         } else {

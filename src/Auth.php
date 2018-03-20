@@ -74,7 +74,6 @@ class Auth {
      */
     static function getGoogleClientByEmail($email = false) {
         $client = self::getGoogleClient();
-        $client->useApplicationDefaultCredentials(false);
         $client->setRedirectUri(self::getCallbackUrl());
         $client->setAccessType('offline');        // offline access
         $client->setIncludeGrantedScopes(true);   // incremental auth
@@ -82,9 +81,8 @@ class Auth {
         $client->setLoginHint($email);
         if ($email) {
             $user_data = DataStore::retriveTokenByUserEmail($email);
-            if ($user_data && $user_data->access_token) {
-                $user_data_content = $user_data->getData();
-                $client = self::refreshTokenIfExpired($user_data_content, $client);
+            if ($user_data && isset($user_data["access_token"])) {
+                $client = self::refreshTokenIfExpired($user_data, $client);
             }
         }
         return $client;
@@ -193,7 +191,6 @@ class Auth {
                  */
                 $user_data = DataStore::retriveTokenByUserEmail($user_email);
                 if ($user_data) {
-                    $user_data = $user_data->getData();
                     foreach (["family_name", "given_name", "name", "gender", "picture", "name", "locale", "verified_email"] as $key) {
                         if (isset($user_data[$key])) {
                             $data[$key] = $user_data[$key];

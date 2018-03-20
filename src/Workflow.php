@@ -8,9 +8,12 @@
 
 namespace GaeUtil;
 
+use Psr\Http\Message\RequestInterface;
+
 class Workflow {
 
     const STATUS_COMPLETED = "COMPLETED";
+    const STATUS_ERROR = "ERROR";
     const STATUS_FAILED = "FAILED";
     const STATUS_RUNNING = "RUNNING";
 
@@ -35,8 +38,12 @@ class Workflow {
         if (!isset($workflow_config["active"])) {
             $workflow_config["active"] = true;
         }
-        if (!isset($workflow_config["runrules"])) {
-            $workflow_config["runrules"] = "once_pr_day";
+        /**
+         * defines the maximum age before a job is considered old.
+         * 23 hours are default.
+         */
+        if (!isset($workflow_config["max_age"])) {
+            $workflow_config["max_age"] = Moment::ONEDAY - Moment::ONEHOUR;
         }
         /**
          * Setting some defaults
@@ -72,19 +79,41 @@ class Workflow {
      * @return array
      */
     static function runFromKey($workflow_key) {
-        $workflow_config = self::getWorkflowConfig($workflow_key);
-        $workflow_job_key = self::createWorkflowJobKey();
-        $workflow_job_config = self::createJobConfig($workflow_config);
+        $workflow_job_config = [];
+        $start_time = microtime(true);
+        /**
+         * First doing a simple setup... does this work?
+         * Nothing get saved at this point errors here is most likely to be
+         * a runtime problem. Like locking errorous jobs or that a job is already running.
+         */
         try {
+            $workflow_config = self::getWorkflowConfig($workflow_key);
+            $workflow_job_key = self::createWorkflowJobKey();
+            $workflow_job_config = self::createJobConfig($workflow_config);
             $start_state = self::getWorkflowState($workflow_key);
             $workflow_job_config = self::startJob($workflow_job_key, $workflow_job_config, $start_state);
+        } catch (\Exception $exception) {
+            syslog(LOG_ERR, $exception->getMessage());
+            $workflow_job_config["status"] = self::STATUS_ERROR;
+            $workflow_job_config["message"] = "Got this error: " . $exception->getMessage();
+            $workflow_job_config["runtime"] = microtime(true) - $start_time;
+            return $workflow_job_config;
+        }
+        /**
+         * Continues with a working setup and trying to do the config run.
+         */
+        try {
+            ob_start();
             $end_state = self::runFromConfig($workflow_config, $start_state);
+            $workflow_job_config["message"] = ob_get_clean();
+            $workflow_job_config["runtime"] = microtime(true) - $start_time;
             if ($end_state) {
                 return self::endJob($workflow_job_key, $workflow_job_config, $end_state);
             } else {
-                return self::failJob($workflow_job_key, $workflow_job_config, "Job failed, Unknown error. Returned empty state.");
+                return self::failJob($workflow_job_key, $workflow_job_config);
             }
         } catch (\Exception $exception) {
+            $workflow_job_config["runtime"] = microtime(true) - $start_time;
             return self::failJob($workflow_job_key, $workflow_job_config, $exception->getMessage());
         }
     }
@@ -103,8 +132,11 @@ class Workflow {
         $workflowClassName = $workflow_config[self::CONF_HANDLER];
         $workFlowParams = $workflow_config[self::CONF_PARAMS];
         $workflowClass = new $workflowClassName($workflow_config);
+        syslog(LOG_INFO, "Running task with start state " . json_encode($workflow_state));
         call_user_func_array([$workflowClass, "set_state"], $workflow_state);
-        return call_user_func_array([$workflowClass, "run"], $workFlowParams);
+        $result = call_user_func_array([$workflowClass, "run"], $workFlowParams);
+        syslog(LOG_INFO, "Ending task with end state " . json_encode($result));
+        return $result;
     }
 
     /**
@@ -157,9 +189,9 @@ class Workflow {
      * @param $workflow_key
      * @return mixed
      */
-    static function isWorkflowInErrorState($workflow_key, $ttl) {
+    static function isWorkflowInErrorState($workflow_key, $error_ttl) {
         $status = self::STATUS_FAILED;
-        $created_after = "-$ttl sec";
+        $created_after = "-$error_ttl seconds";
         $data = DataStore::retrieveMostCurrentWorkflowJobByAgeAndStatus($workflow_key, $status, $created_after);
         return (bool)$data;
     }
@@ -193,9 +225,13 @@ class Workflow {
      * @param $workflow_key
      * @return bool
      */
-    static function isWorkflowRunning($workflow_key, $ttl = 86000) {
+    static function isWorkflowRunning($workflow_key) {
         $status = self::STATUS_RUNNING;
-        $created_after = "-1 day";
+        if (Util::isDevServer()) {
+            $created_after = "-60 seconds";
+        } else {
+            $created_after = "-" . Moment::ONEHOUR . " seconds";
+        }
         $data = DataStore::retrieveMostCurrentWorkflowJobByAgeAndStatus($workflow_key, $status, $created_after);
         $result = (bool)$data;
         return $result;
@@ -231,20 +267,22 @@ class Workflow {
         /**
          * Checking if a flow is already running
          */
-        if (self::isWorkflowRunning($workflow_key, Moment::ONEDAY)) {
+        if (self::isWorkflowRunning($workflow_key)) {
             throw new \Exception("A job for $workflow_name is already running.");
         }
         /**
          *  Check how long its since last job run... we just don't want to spam errors.
          */
-        $error_ttl = Moment::ONEDAY;
+        $error_ttl = Util::isDevServer() ? 60 : Moment::ONEDAY;
         if (self::isWorkflowInErrorState($workflow_key, $error_ttl)) {
             throw new \Exception("A job for $workflow_name have failed less than $error_ttl seconds ago, skipping.");
         }
 
         $workflow_job_config = array_merge($workflow_job_config, [
             "status" => self::STATUS_RUNNING,
-            "start_state" => $start_state
+            "start_state" => $start_state,
+            "end_state" => $start_state,
+            "finished" => new \DateTime(),
         ]);
         DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_config);
         return $workflow_job_config;
@@ -286,14 +324,43 @@ class Workflow {
         return $workflow_job_config;
     }
 
-    static function endpointHandler($get_request) {
-        $get_param = "";
-        if (isset($get_request[$get_param])) {
+    /**
+     * Handler that can be use to as an endpoint to perform various.
+     *
+     * @param RequestInterface $request
+     * @return array
+     */
+    static function endpointHandler(RequestInterface $request) {
+        $get_param = "workflow_key";
+        $post_params = [];
+        $get_params = [];
+        parse_str($request->getBody()->getContents(), $post_params);
+        parse_str($request->getUri()->getQuery(), $get_params);
+        $query_params = array_merge_recursive($post_params, $get_params);
+        syslog(LOG_INFO, __METHOD__ . " invoked with " . json_encode($query_params));
+        if (isset($query_params[$get_param])) {
             // This is a script run request
-            self::runFromKey($get_request[$get_param]);
+            $result = self::runFromKey($query_params[$get_param]);
+            return $result;
         } else {
-            // This is a scheduale request
+            $workflows = DataStore::retrieveActiveWorkflows();
+            $result = [];
+            if ($workflows) {
+                $url_path = $request->getUri()->getPath();
+                foreach ($workflows as $flow) {
+                    $flow_key = self::createWorkflowKeyFromConfig($flow);
+                    $query_data = [
+                        $get_param => $flow_key
+                    ];
+                    $result[] = Tasks::add($url_path, $query_data);
+                }
+                Tasks::flush();
+            } else {
+                syslog(LOG_WARNING, __METHOD__ . " could not find active workflows to schedule.");
+            }
+            return $result;
         }
+
     }
 }
 

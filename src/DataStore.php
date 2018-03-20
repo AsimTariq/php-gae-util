@@ -62,7 +62,6 @@ class DataStore {
         return self::deleteAll(self::getWorkflowJobKind());
     }
 
-
     static function saveToken($user_email, $user_data) {
         $kind_schema = self::getGoogleAccessTokenKind();
         $user_data["domain"] = Util::getDomainFromEmail($user_email);
@@ -71,7 +70,9 @@ class DataStore {
 
     static function retriveTokenByUserEmail($user_email) {
         $kind_schema = self::getGoogleAccessTokenKind();
-        return self::fetchAll($kind_schema);
+        $store = self::store($kind_schema);
+        $input_row = $store->fetchByName($user_email);
+        return self::flattenRow($input_row);
     }
 
     /**
@@ -89,8 +90,13 @@ class DataStore {
     static function fetchAll($kind_schema, $str_query = null) {
         $store = self::store($kind_schema);
         $result = $store->fetchAll($str_query);
+        return self::flattenAll($result);
+
+    }
+
+    static function flattenAll($input_rows) {
         $output = [];
-        foreach ($result as $row) {
+        foreach ($input_rows as $row) {
             $output[] = self::flattenRow($row);
         }
         return $output;
@@ -165,15 +171,36 @@ class DataStore {
     static function retrieveMostCurrentWorkflowJob($workflow_key) {
         $kind_schema = self::getWorkflowJobKind();
         $store = self::store($kind_schema);
-        $result = $store->fetchOne("SELECT * FROM $kind_schema WHERE workflow_key='$workflow_key' ORDER BY created DESC");
+        $where = [
+            "workflow_key" => $workflow_key
+        ];
+        $result = $store->fetchOne("SELECT * FROM $kind_schema WHERE workflow_key = @workflow_key ORDER BY created DESC", $where);
         return $result->getData();
     }
 
     /**
-     * Used to check if job is running and getting last successful job run to retrive state.
-     *
-     * @param $status
+     * @param $workflow_key
      * @return array
+     */
+    static function retrieveActiveWorkflows() {
+        $kind_schema = self::getWorkflowKind();
+        $store = self::store($kind_schema);
+        $where = [
+            "active" => true
+        ];
+        $result = $store->fetchAll("SELECT * FROM $kind_schema WHERE active = @active", $where);
+        return self::flattenAll($result);
+
+    }
+
+    /**
+     * Used to check if job is running and getting last successful job run to retrieve state.
+     *
+     * @param $workflow_key
+     * @param $status
+     * @param $created_after
+     * @return array|bool
+     * @throws \Exception
      */
     static function retrieveMostCurrentWorkflowJobByAgeAndStatus($workflow_key, $status, $created_after) {
         $kind_schema = self::getWorkflowJobKind();
@@ -184,10 +211,9 @@ class DataStore {
             "status" => $status,
             "obsolete_time" => $obsolete_time
         ];
-        syslog(LOG_INFO, "Retrieve last $status created should be larger than:" . $obsolete_time->format("c"));
+        syslog(LOG_INFO, __METHOD__ . " with vars " . json_encode($where));
         $str_query = "SELECT * FROM $kind_schema 
-        WHERE workflow_key = @workflow_key AND status = @status AND created > @obsolete_time 
-        ORDER BY created DESC";
+        WHERE workflow_key = @workflow_key AND status = @status AND created > @obsolete_time ORDER BY created DESC";
         $result = $store->fetchOne($str_query, $where);
         if ($result) {
             return $result->getData();

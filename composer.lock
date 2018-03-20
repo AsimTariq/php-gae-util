@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "50b88d4fb1ac3a508193366e5649c869",
+    "content-hash": "dea27d720e92e60085290f33ee6b6710",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -238,16 +238,16 @@
         },
         {
             "name": "google/cloud-core",
-            "version": "v1.17.1",
+            "version": "v1.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GoogleCloudPlatform/google-cloud-php-core.git",
-                "reference": "2714eb5810188f126afc1f6dfe3d011b863a8e2b"
+                "reference": "9f905c2d7c58db82e311eeff3843cc490ac68f09"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-core/zipball/2714eb5810188f126afc1f6dfe3d011b863a8e2b",
-                "reference": "2714eb5810188f126afc1f6dfe3d011b863a8e2b",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php-core/zipball/9f905c2d7c58db82e311eeff3843cc490ac68f09",
+                "reference": "9f905c2d7c58db82e311eeff3843cc490ac68f09",
                 "shasum": ""
             },
             "require": {
@@ -285,7 +285,7 @@
                 "Apache-2.0"
             ],
             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
-            "time": "2018-02-26T20:57:20+00:00"
+            "time": "2018-03-16T18:56:38+00:00"
         },
         {
             "name": "google/cloud-storage",
@@ -1659,12 +1659,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "7bca1e7d27f79483b073d87d8ec4ee08f5adb68c"
+                "reference": "2cf3d15891e3843c9f0e01268e2eadd0e8beec2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7bca1e7d27f79483b073d87d8ec4ee08f5adb68c",
-                "reference": "7bca1e7d27f79483b073d87d8ec4ee08f5adb68c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2cf3d15891e3843c9f0e01268e2eadd0e8beec2f",
+                "reference": "2cf3d15891e3843c9f0e01268e2eadd0e8beec2f",
                 "shasum": ""
             },
             "require": {
@@ -1731,7 +1731,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-03-08T18:18:05+00:00"
+            "time": "2018-03-15T16:51:24+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
