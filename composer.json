@@ -1,6 +1,6 @@
 {
   "name": "mijohansen/php-gae-util",
-  "description": "Description of project php-gae-util.",
+  "description": "Utility belt for common tasks in Google App Engine for PHP.",
   "type": "library",
   "version": "0.7.3",
   "minimum-stability": "dev",
