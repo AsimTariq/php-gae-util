@@ -117,6 +117,9 @@ class JWT {
         return base64_decode($jwt_secret);
     }
 
+    public static function internalSecretIsConfigured(){
+        return (Conf::get(self::CONF_INTERNAL_SECRET_NAME,false));
+    }
     public static function getInternalSecret() {
         return self::getSecret(self::CONF_INTERNAL_SECRET_NAME);
     }

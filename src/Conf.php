@@ -39,8 +39,7 @@ class Conf {
                     break;
                 }
             }
-
-            $cached = new Cached(__METHOD__);
+            $cached = new Cached(self::getCacheKey());
             if (!$cached->exists()) {
                 $secret_data = [
                     "global_config_is_loaded" => false
@@ -48,12 +47,12 @@ class Conf {
                 /**
                  * Fetching encoded microservice secrets and storing them in cache.
                  */
-                $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME,false);
+                $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME, false);
                 try {
-                    if($global_config_file){
-                        syslog(LOG_INFO, "Fetching... " . $global_config_file);
+                    if ($global_config_file) {
+                        syslog(LOG_INFO, "Fetching global config: " . $global_config_file);
                         $array_w_secrets = Files::getJson($global_config_file, false);
-                        if($array_w_secrets){
+                        if ($array_w_secrets) {
                             $data = Secrets::decryptDotSecrets($array_w_secrets);
                             $secret_data = array_merge_recursive($secret_data, $data);
                         }
@@ -64,10 +63,10 @@ class Conf {
                     $secret_data[JWT::CONF_EXTERNAL_SECRET_NAME] = JWT::generateSecret();
                     $cached->set($secret_data);
                 } catch (\Exception $e) {
-                    syslog(LOG_WARNING, "Decrpytion of $global_config_file failed with message: " . $e->getMessage());
+                    syslog(LOG_WARNING, "Decryption of $global_config_file failed with message: " . $e->getMessage());
                 }
             }
-            if($cached->exists()){
+            if ($cached->exists()) {
                 foreach ($cached->get() as $key => $value) {
                     $key = trim($key, ".");
                     $instance->set($key, $value);
@@ -105,6 +104,13 @@ class Conf {
             syslog(LOG_WARNING, "Error adding $filename from config dir. " . $exception->getMessage());
         }
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    static function getCacheKey() {
+        return Cached::keymaker(__METHOD__, Util::getModuleId());
     }
 
     static function getConfFilepath($filename) {

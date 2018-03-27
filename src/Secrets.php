@@ -168,6 +168,41 @@ class Secrets {
         return $data;
     }
 
+
+
+    /**
+     * Encrypts a string and returns the base64_encoded response from KMS.
+     *
+     * @param $string
+     * @param $key_name
+     * @return mixed
+     */
+    static public function encryptString($plaintext_string, $key_name) {
+        $kms = self::getService();
+        $base64_encoded_json = base64_encode($plaintext_string);
+        $request = new \Google_Service_CloudKMS_EncryptRequest();
+        $request->setPlaintext($base64_encoded_json);
+        $response = $kms->projects_locations_keyRings_cryptoKeys->encrypt(
+            $key_name,
+            $request
+        );
+        return $response['ciphertext'];
+    }
+
+    /**
+     *
+     */
+    static public function decryptString($base64_encoded_ciphertext, $key_name) {
+        $kms = self::getService();
+        $request = new \Google_Service_CloudKMS_DecryptRequest();
+        $request->setCiphertext($base64_encoded_ciphertext);
+        $response = $kms->projects_locations_keyRings_cryptoKeys->decrypt(
+            $key_name,
+            $request
+        );
+        return base64_decode($response['plaintext']);
+    }
+
     /**
      * @param array $array_w_secrets
      * @param $encryption_key_name
@@ -214,39 +249,6 @@ class Secrets {
         unset($array_w_secrets["_created_time"]);
         unset($array_w_secrets["_created_by"]);
         return $array_w_secrets;
-    }
-
-    /**
-     * Encrypts a string and returns the base64_encoded response from KMS.
-     *
-     * @param $string
-     * @param $key_name
-     * @return mixed
-     */
-    static public function encryptString($plaintext_string, $key_name) {
-        $kms = self::getService();
-        $base64_encoded_json = base64_encode($plaintext_string);
-        $request = new \Google_Service_CloudKMS_EncryptRequest();
-        $request->setPlaintext($base64_encoded_json);
-        $response = $kms->projects_locations_keyRings_cryptoKeys->encrypt(
-            $key_name,
-            $request
-        );
-        return $response['ciphertext'];
-    }
-
-    /**
-     *
-     */
-    static public function decryptString($base64_encoded_ciphertext, $key_name) {
-        $kms = self::getService();
-        $request = new \Google_Service_CloudKMS_DecryptRequest();
-        $request->setCiphertext($base64_encoded_ciphertext);
-        $response = $kms->projects_locations_keyRings_cryptoKeys->decrypt(
-            $key_name,
-            $request
-        );
-        return base64_decode($response['plaintext']);
     }
 
     /**

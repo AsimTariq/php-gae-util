@@ -24,6 +24,7 @@ class State {
             "is_dev" => self::isDevServer(),
             "default_hostname" => AppIdentityService::getDefaultVersionHostname(),
             "is_admin" => false,
+            "user" => false,
         ];
         $user = UserService::getCurrentUser();
         if ($user) {
@@ -33,14 +34,23 @@ class State {
             $data["login"] = Auth::createLoginURL();
         }
 
-        if (UserService::isCurrentUserAdmin()) {
-            $data["is_admin"] = true;
-            $data["composer"] = Composer::getComposerData();
-            $data["internal_token"] = "Bearer ".JWT::getInternalToken();
-            $data["external_token"] = "Bearer ".JWT::getExternalToken(Auth::getCurrentUserEmail(),Moment::ONEDAY);
-        }
         $data["links"] = $links;
 
+        if (UserService::isCurrentUserAdmin()) {
+            $data["is_admin"] = true;
+
+            $data["errors"] = [];
+            if (JWT::internalSecretIsConfigured()) {
+                $data["internal_token"] = "Bearer " . JWT::getInternalToken();
+            } else {
+                $data["internal_token"] = false;
+                $data["errors"][] = [
+                    "message" => "Internal secret is not configured. Add jwt_internal_secret to a configuration file."
+                ];
+            }
+            $data["external_token"] = "Bearer " . JWT::getExternalToken(Auth::getCurrentUserEmail(), Moment::ONEDAY);
+            $data["composer"] = Composer::getComposerData();
+        }
         return $data;
     }
 }

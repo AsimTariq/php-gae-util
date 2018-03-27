@@ -31,5 +31,6 @@ class Tasks {
         }
         $queue->addTasks(self::$tasks);
         self::$tasks = [];
+        syslog(LOG_INFO, "Flushed " .count(self::$tasks) ." tasks to the task queue.");
     }
 }

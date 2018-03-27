@@ -127,16 +127,17 @@ class Workflow {
      * @throws \Exception
      */
     static function runFromConfig($workflow_config, $workflow_state) {
+        $workflow_classname = $workflow_config[self::CONF_HANDLER];
         self::validateConfig($workflow_config);
-        self::validateState($workflow_config[self::CONF_HANDLER], $workflow_state);
-        $workflowClassName = $workflow_config[self::CONF_HANDLER];
-        $workFlowParams = $workflow_config[self::CONF_PARAMS];
-        $workflowClass = new $workflowClassName($workflow_config);
-        syslog(LOG_INFO, "Running task with start state " . json_encode($workflow_state));
-        call_user_func_array([$workflowClass, "set_state"], $workflow_state);
-        $result = call_user_func_array([$workflowClass, "run"], $workFlowParams);
-        syslog(LOG_INFO, "Ending task with end state " . json_encode($result));
-        return $result;
+        self::validateState($workflow_classname, $workflow_state);
+        $workflow_params = $workflow_config[self::CONF_PARAMS];
+        $workflowClass = new $workflow_classname($workflow_config);
+        syslog(LOG_INFO, "Running $workflow_classname with start state " . json_encode($workflow_state));
+        call_user_func_array([$workflowClass, "setState"], $workflow_state);
+        $end_state = call_user_func_array([$workflowClass, "run"], $workflow_params);
+        syslog(LOG_INFO, "Ending $workflow_classname with end state " . json_encode($end_state));
+        self::validateState($workflow_config[self::CONF_HANDLER], $end_state);
+        return $end_state;
     }
 
     /**
@@ -170,7 +171,7 @@ class Workflow {
      * @throws \Exception
      */
     static function validateState($workflowClassName, $workFlowState) {
-        $method = new \ReflectionMethod($workflowClassName, "set_state");
+        $method = new \ReflectionMethod($workflowClassName, "setState");
         $required_number_of_params = $method->getNumberOfParameters();
         $state_number_of_params = count($workFlowState);
         if ($required_number_of_params != $state_number_of_params) {
