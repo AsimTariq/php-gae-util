@@ -39,7 +39,8 @@ class Conf {
                     break;
                 }
             }
-            $cached = new Cached(self::getCacheKey());
+
+            $cached = new Cached(self::getCacheKey(), Util::isCli());
             if (!$cached->exists()) {
                 $secret_data = [
                     "global_config_is_loaded" => false
@@ -72,7 +73,7 @@ class Conf {
                     $instance->set($key, $value);
                 }
             }
-            if (Util::isDevServer()) {
+            if (Util::isDevServer() || Util::isCli()) {
                 self::addConfigFile(self::GAEDEV_FILENAME);
             }
         }

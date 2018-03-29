@@ -12,6 +12,8 @@ use google\appengine\api\users\UserService;
 
 class Auth {
 
+    const PROVIDER_GOOGLE = "google";
+
     static function getUserDataFromGoogleClient(\Google_Client $client) {
         $service = new \Google_Service_Oauth2($client);
         $user_info = $service->userinfo_v2_me->get();
@@ -133,13 +135,18 @@ class Auth {
         return $client;
     }
 
-    static function createLoginURL() {
+    static function createLoginURL($extra_provider = null) {
         if (Util::isDevServer()) {
             $root = Util::getHomeUrl();
         } else {
             $root = "";
         }
-        $login_url = $root . UserService::createLoginURL(self::getCallbackUrl() . "?next=google");
+        if (!is_null($extra_provider)) {
+            $provider_param = "?next=" + $extra_provider;
+        } else {
+            $provider_param = "";
+        }
+        $login_url = $root . UserService::createLoginURL(self::getCallbackUrl() . $provider_param);
         return $login_url;
     }
 
@@ -151,7 +158,7 @@ class Auth {
         }
     }
 
-    static function getCurrentUserSessionData($authorized_domains = []) {
+    static function getCurrentUserSessionData($authorized_domains = [], $extra_provider = null) {
         $data = [];
         $data["logged_in"] = false;
         $data["is_admin"] = false;
@@ -161,9 +168,12 @@ class Auth {
         $data["access_token"] = null;
         $data["user_domain"] = null;
         $data["logout_url"] = self::createLogoutURL();
-        $data["login_url"] = self::createLoginURL();
+        $data["login_url"] = self::createLoginURL($extra_provider);
 
         $current_user = UserService::getCurrentUser();
+        /**
+         * First check if current user is logged in.
+         */
         if ($current_user) {
             $user_email = $current_user->getEmail();
             $user_is_admin = UserService::isCurrentUserAdmin();
@@ -173,29 +183,37 @@ class Auth {
             $data["user_nick"] = $current_user->getNickname();
             $user_domain = Util::getDomainFromEmail($user_email);
             $data["user_domain"] = $user_domain;
-            if (in_array($user_domain, $authorized_domains) || $user_is_admin) {
+            if (!$authorized_domains ||
+                in_array($user_domain, $authorized_domains) ||
+                $user_is_admin) {
                 $data["logged_in"] = true;
                 $data["jwt_token"] = JWT::getExternalToken($user_email);
-                /**
-                 * Getting data from the Google Client
-                 */
-                $client = self::getGoogleClientByEmail($user_email);
-                $access_token = $client->getAccessToken();
-                if (is_null($access_token["access_token"])) {
-                    $data["logged_in"] = false;
-                    $data["login_url"] = Auth::getAuthRedirectUrl();
-                }
 
                 /**
-                 * Getting previous stored data from DataStore
+                 * Should we do another auth cycle?
                  */
-                $user_data = DataStore::retriveTokenByUserEmail($user_email);
-                if ($user_data) {
-                    foreach (["family_name", "given_name", "name", "gender", "picture", "name", "locale", "verified_email"] as $key) {
-                        if (isset($user_data[$key])) {
-                            $data[$key] = $user_data[$key];
-                        } else {
-                            $data[$key] = null;
+                if ($extra_provider == self::PROVIDER_GOOGLE) {
+                    /**
+                     * Getting data from the Google Client
+                     */
+                    $client = self::getGoogleClientByEmail($user_email);
+                    $access_token = $client->getAccessToken();
+                    if (is_null($access_token["access_token"])) {
+                        $data["logged_in"] = false;
+                        $data["login_url"] = Auth::getAuthRedirectUrl();
+                    }
+
+                    /**
+                     * Getting previous stored data from DataStore
+                     */
+                    $user_data = DataStore::retriveTokenByUserEmail($user_email);
+                    if ($user_data) {
+                        foreach (["family_name", "given_name", "name", "gender", "picture", "name", "locale", "verified_email"] as $key) {
+                            if (isset($user_data[$key])) {
+                                $data[$key] = $user_data[$key];
+                            } else {
+                                $data[$key] = null;
+                            }
                         }
                     }
                 }
@@ -233,8 +251,15 @@ class Auth {
         } else {
             return false;
         }
+    }
 
-
+    /**
+     * Returns the current user email, or false if the user is not logged in.
+     *
+     * @return bool|string
+     */
+    static function isCurrentUserAdmin() {
+        return UserService::isCurrentUserAdmin();
     }
 
     static function getCurrentUserEmailDomain() {
@@ -250,7 +275,7 @@ class Auth {
              */
             if (isset($get_request["next"])) {
                 switch ($get_request["next"]) {
-                    case "google":
+                    case self::PROVIDER_GOOGLE:
                         Util::redirect(Auth::getAuthRedirectUrl());
                         break;
                     default:
