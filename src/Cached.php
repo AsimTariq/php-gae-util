@@ -48,15 +48,7 @@ class Cached {
     }
 
     static function keymaker() {
-        $parts = [];
-        foreach (func_get_args() as $arg) {
-            if (is_array($arg)) {
-                $parts = array_merge($parts, $arg);
-            } else {
-                $parts[] = $arg;
-            }
-        }
-        return implode("/", $parts);
+        return md5(json_encode(func_get_args()));
     }
 
     static function delete($cache_key) {

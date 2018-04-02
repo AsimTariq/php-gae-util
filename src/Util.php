@@ -143,12 +143,7 @@ class Util {
         return $parts[count($parts) - 2];
     }
 
-    static function isDevServer() {
-        return (strpos(getenv('SERVER_SOFTWARE'), 'Development') === 0);
-    }
-    static function isCli(){
-        return (php_sapi_name() === "cli");
-    }
+
 
     static function getVendorDir() {
         if (defined("COMPOSER_VENDOR_DIR")) {
@@ -258,6 +253,60 @@ class Util {
         $value = getenv($varname);
         $value = str_replace($searh, $replace, $value);
         putenv("$varname=$value");
+    }
+
+    /**
+     * Check if we are on the Dev server
+     *
+     * @return bool
+     */
+    static function isDevServer() {
+        return (strpos(getenv('SERVER_SOFTWARE'), 'Development') === 0);
+    }
+
+    /**
+     * Check if we are running on CLI
+     *
+     * @return bool
+     */
+    static function isCli(){
+        if(!self::onAppEngine() && php_sapi_name() === "cli"){
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Determines if this an App Engine instance, by accessing the
+     * SERVER_SOFTWARE environment variable (prod) or the APPENGINE_RUNTIME
+     * environment variable (dev).
+     *
+     * Copied from App Engine functions
+     *
+     * @return true if this an App Engine Instance, false otherwise
+     */
+    public static function onAppEngine()
+    {
+        $appEngineProduction = isset($_SERVER['SERVER_SOFTWARE']) &&
+            0 === strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine');
+        if ($appEngineProduction) {
+            return true;
+        }
+        $appEngineDevAppServer = isset($_SERVER['APPENGINE_RUNTIME']) &&
+            $_SERVER['APPENGINE_RUNTIME'] == 'php';
+        if ($appEngineDevAppServer) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Are we running in Google AppEngine?
+     * return bool
+     */
+    public function isAppEngine()
+    {
+        return (isset($_SERVER['SERVER_SOFTWARE']) &&
+            strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine') !== false);
     }
 }
 
