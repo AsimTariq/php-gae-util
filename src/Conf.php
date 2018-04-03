@@ -51,7 +51,7 @@ class Conf {
                 $global_config_file = $instance->get(self::CONF_GLOBAL_CONFIG_FILENAME, false);
                 try {
                     if ($global_config_file) {
-                        syslog(LOG_INFO, "Fetching global config: " . $global_config_file);
+                        syslog(LOG_INFO, "Trying to fetch global config: " . $global_config_file);
                         $array_w_secrets = Files::getJson($global_config_file, false);
                         if ($array_w_secrets) {
                             $data = Secrets::decryptDotSecrets($array_w_secrets);

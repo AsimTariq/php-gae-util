@@ -100,6 +100,7 @@ class Files {
             $json = file_get_contents($filename);
             $data = json_decode($json, JSON_OBJECT_AS_ARRAY);
         } else {
+            syslog(LOG_INFO, __METHOD__ . " using default value for $filename");
             $data = $default;
         }
         return $data;

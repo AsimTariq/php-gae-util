@@ -8,6 +8,7 @@
 
 namespace GaeUtil;
 
+use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
 class Auth {
@@ -320,4 +321,14 @@ class Auth {
 
     }
 
+    /**
+     * Retrives the info about the current service account.
+     */
+    static function getCurrentServiceAccountInfo(){
+        $access_token = AppIdentityService::getAccessToken([]);
+        $url = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=".$access_token["access_token"];
+        $json = file_get_contents($url);
+        $data =  json_decode($json);
+        return $data;
+    }
 }
