@@ -16,7 +16,6 @@ class WorkflowTest extends TestCase {
     protected $workflowClassName = "TestClassForWorkflows";
 
     public function setUp() {
-        DataStore::changeToTestMode();
         $WorkflowKind = DataStore::getWorkflowKind();
         $WorkflowJobKind = Datastore::getWorkflowJobKind();
         DataStore::deleteAll($WorkflowKind);

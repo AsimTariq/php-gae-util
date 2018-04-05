@@ -159,6 +159,34 @@ class Auth {
         }
     }
 
+    /**
+     * Simple method created for very simple session method for backend frontend communication.
+     *
+     * @param string $return_to
+     * @return array
+     */
+    static function getSimpleSessionData($return_to="/"){
+        $data = [];
+        $current_user = UserService::getCurrentUser();
+        $data["logout_url"] = self::createLogoutURL();
+        $data["login_url"] = self::createLoginURL($return_to);
+        $data["logged_in"] = (bool)$current_user;
+        $data["is_admin"] = self::isCurrentUserAdmin();
+        $data["user_email"] = self::getCurrentUserEmail();
+        $data["user_id"] = $current_user->getUserId();
+        $data["user_nick"] = $current_user->getNickname();
+        $data["is_devserver"] = Util::isDevServer();
+        $data["have_google_token"] = false;
+        if($current_user){
+            $google_client = self::getGoogleClientForCurrentUser();
+            $token = $google_client->getAccessToken();
+            if($token){
+                $data["have_google_token"] = true;
+            }
+        }
+        return $data;
+
+    }
     static function getCurrentUserSessionData($authorized_domains = [], $extra_provider = null) {
         $data = [];
         $data["logged_in"] = false;
@@ -170,6 +198,7 @@ class Auth {
         $data["user_domain"] = null;
         $data["logout_url"] = self::createLogoutURL();
         $data["login_url"] = self::createLoginURL($extra_provider);
+
 
         $current_user = UserService::getCurrentUser();
         /**

@@ -2,9 +2,10 @@
 
 namespace GaeUtil;
 
-use DateTime;
 use google\appengine\api\app_identity\AppIdentityService;
 use Composer\Autoload\ClassLoader;
+
+
 class Util {
 
     static public function quoteArray($array) {
@@ -37,27 +38,7 @@ class Util {
         file_put_contents($filename, json_encode($all_included_files));
     }
 
-    static function shortdate($DateTime) {
-        if (!is_a($DateTime, "DateTime")) {
-            $DateTime = new DateTime($DateTime);
-        }
-        $month = $DateTime->format("n");
-        $nor = [
-            1 => "JAN",
-            2 => "FEB",
-            3 => "MAR",
-            4 => "APR",
-            5 => "MAI",
-            6 => "JUN",
-            7 => "JUL",
-            8 => "AUG",
-            9 => "SEP",
-            10 => "OKT",
-            11 => "NOV",
-            12 => "DES",
-        ];
-        return "'" . $nor[$month] . " " . $DateTime->format("y");
-    }
+
 
     static function dump($variable) {
         echo("<pre>");

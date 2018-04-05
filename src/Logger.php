@@ -12,6 +12,10 @@ use Monolog\Handler\SyslogHandler;
 
 class Logger {
 
+    /**
+     * @param $name
+     * @return \Monolog\Logger
+     */
     static function create($name) {
         $logger = new \Monolog\Logger($name);
         $logger->pushHandler(new SyslogHandler($name));

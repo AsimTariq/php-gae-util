@@ -75,22 +75,73 @@ class Moment {
 
     static function getLastDay($first_period, $length) {
         if (is_string($first_period)) {
-            $thisDateTime = new DateTime($first_period);
+            $thisDateTime = new \DateTime($first_period);
         } else {
             $thisDateTime = $first_period;
         }
-        $thisDateTime->add(new DateInterval("P" . $length . "M"));
-        $thisDateTime->sub(new DateInterval("P1D"));
+        $thisDateTime->add(new \DateInterval("P" . $length . "M"));
+        $thisDateTime->sub(new \DateInterval("P1D"));
         return $thisDateTime;
     }
 
     static function getPeriods($first_period, $length) {
-        $first_month = new DateTime($first_period);
+        $first_month = new \DateTime($first_period);
         $output = array();
         for ($i = 1; $i <= $length; $i++) {
             $output[] = clone $first_month;
-            $first_month->add(new DateInterval("P1M"));
+            $first_month->add(new \DateInterval("P1M"));
         }
         return $output;
     }
+
+    static function monthIdToDateTime($month_id) {
+        $year = substr($month_id, 0, 4);
+        $month = substr($month_id, 4, 2);
+        $date = implode("-", [$year, $month]);
+        return new \DateTime($date);
+    }
+
+    static function getPeriodsFromMonthIds($start_month_id, $end_month_id) {
+        $start_date = self::monthIdToDateTime($start_month_id);
+        $end_date = self::monthIdToDateTime($end_month_id);
+        $output = [];
+        while ($start_date < $end_date) {
+            $output[] = clone $start_date;
+            $start_date->add(new \DateInterval("P1M"));
+        }
+        $output[] = $end_date;
+        return $output;
+    }
+
+    static function shortdate($DateTime) {
+        if (!is_a($DateTime, "DateTime")) {
+            $DateTime = new \DateTime($DateTime);
+        }
+        $month = $DateTime->format("n");
+        $nor = [
+            1 => "JAN",
+            2 => "FEB",
+            3 => "MAR",
+            4 => "APR",
+            5 => "MAI",
+            6 => "JUN",
+            7 => "JUL",
+            8 => "AUG",
+            9 => "SEP",
+            10 => "OKT",
+            11 => "NOV",
+            12 => "DES",
+        ];
+        return "'" . $nor[$month] . " " . $DateTime->format("y");
+    }
 }
+
+
+
+
+
+
+
+
+
+

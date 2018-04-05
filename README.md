@@ -18,6 +18,24 @@ its main contribution is to store the state of the job running. Saves
 State to DataStore.
 
 
+
+### Login in to provide service account credentials in development
+
+For local developent its important to get [Application Default Credentials]
+if you want to use resources on the Google Cloud platform. You log in by
+running this command:
+
+```bash
+
+$ gcloud auth application-default login
+
+```
+
+You need to restart the devserver to get this working as the credentials
+get set on startup time.
+
+## Testing and development
+
 ### Testing
 Test-coverage is an important part of creating reusable, reliable code.
 The goal of this testing is to use phpunit as this is the most used
@@ -26,7 +44,7 @@ understanding and being able to test against the emulator is quite important.
 The emulator is not the same as the built in emulator that is running inside the 
 GAE devserver emulator.
 
-#### Setup for testing
+#### Cloud datastore setup for testing
 
 ```bash
 $ gcloud components install cloud-datastore-emulator
@@ -34,7 +52,8 @@ $ gcloud beta emulators datastore start
 ```
 
 
-#### For local development
+### For local development of packages
+
 My strategy for developing packages for packagist is as following.
 
 * Create a local folder where you symlink packages
@@ -71,6 +90,8 @@ packages:
 }
 ```
 
+
+
 ### Coding style
 The liberary consist of several separate Classes that really just form
 a set of functions which should be fairly simple to introduce to code.
@@ -80,7 +101,7 @@ camelCase. And I try to follow [PSR-1] and [PSR-2]
 
 [PSR-1]: https://www.php-fig.org/psr/psr-1/
 [PSR-2]: https://www.php-fig.org/psr/psr-2/
-
+[Application Default Credentials]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
 
 
 

@@ -104,8 +104,8 @@ class JWT {
 
     }
 
-    static public function check($jwt_token) {
-        $decoded = \Firebase\JWT\JWT::decode($jwt_token, self::getSecret(), [self::ALG]);
+    static public function check($jwt_token,$secret=null) {
+        $decoded = \Firebase\JWT\JWT::decode($jwt_token, self::getSecret($secret), [self::ALG]);
         return $decoded;
     }
 
