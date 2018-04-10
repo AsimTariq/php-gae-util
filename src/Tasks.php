@@ -15,7 +15,7 @@ class Tasks {
 
     static $tasks = [];
 
-    static public function add($url_path, $params) {
+    static public function add($url_path, $params=[]) {
         $task = new PushTask($url_path, $params);
         self::$tasks[] = $task;
         if (count(self::$tasks) == 100) {

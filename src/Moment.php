@@ -53,6 +53,10 @@ class Moment {
         return date("Y-m-d");
     }
 
+    static function dayId($time = null) {
+        return date("Ymd", $time);
+    }
+
     static function yesterday() {
         return self::dateBefore(self::todayYmd());
     }

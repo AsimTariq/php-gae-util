@@ -165,28 +165,30 @@ class Auth {
      * @param string $return_to
      * @return array
      */
-    static function getSimpleSessionData($return_to="/"){
+    static function getSimpleSessionData($return_to = "/") {
         $data = [];
         $current_user = UserService::getCurrentUser();
         $data["logout_url"] = self::createLogoutURL();
         $data["login_url"] = self::createLoginURL($return_to);
         $data["logged_in"] = (bool)$current_user;
-        $data["is_admin"] = self::isCurrentUserAdmin();
+        $data["user_is_admin"] = self::isCurrentUserAdmin();
         $data["user_email"] = self::getCurrentUserEmail();
-        $data["user_id"] = $current_user->getUserId();
-        $data["user_nick"] = $current_user->getNickname();
+        $data["user_google_id"] = $current_user->getUserId();
+        $data["user_name"] = $current_user->getNickname();
         $data["is_devserver"] = Util::isDevServer();
         $data["have_google_token"] = false;
-        if($current_user){
+        $data["picture"] = Util::getGravatar($data["user_email"]);
+        if ($current_user) {
             $google_client = self::getGoogleClientForCurrentUser();
             $token = $google_client->getAccessToken();
-            if($token){
+            if ($token) {
                 $data["have_google_token"] = true;
             }
         }
         return $data;
 
     }
+
     static function getCurrentUserSessionData($authorized_domains = [], $extra_provider = null) {
         $data = [];
         $data["logged_in"] = false;
@@ -198,7 +200,6 @@ class Auth {
         $data["user_domain"] = null;
         $data["logout_url"] = self::createLogoutURL();
         $data["login_url"] = self::createLoginURL($extra_provider);
-
 
         $current_user = UserService::getCurrentUser();
         /**
@@ -353,11 +354,11 @@ class Auth {
     /**
      * Retrives the info about the current service account.
      */
-    static function getCurrentServiceAccountInfo(){
+    static function getCurrentServiceAccountInfo() {
         $access_token = AppIdentityService::getAccessToken([]);
-        $url = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=".$access_token["access_token"];
+        $url = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" . $access_token["access_token"];
         $json = file_get_contents($url);
-        $data =  json_decode($json);
+        $data = json_decode($json);
         return $data;
     }
 }
