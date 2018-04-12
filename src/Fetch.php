@@ -12,6 +12,7 @@ class Fetch {
 
     /**
      * Fetching an url secured by the Internal accesstoken.
+     * Should be using guzzle just like other Google Api stuff
      *
      * @param $url
      * @param array $params
@@ -29,7 +30,11 @@ class Fetch {
             "http" => [
                 "method" => "GET",
                 "header" => implode("\r\n", $headers)
-            ]
+            ],
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            )
         ];
         $stream_context = stream_context_create($opts);
         if (count($params)) {

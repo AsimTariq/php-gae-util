@@ -2,8 +2,9 @@
 
 namespace GaeUtil;
 
-use google\appengine\api\app_identity\AppIdentityService;
 use Composer\Autoload\ClassLoader;
+use google\appengine\api\app_identity\AppIdentityService;
+use google\appengine\util\StringUtil;
 use Psr\Http\Message\RequestInterface;
 
 class Util {
@@ -37,8 +38,6 @@ class Util {
         }
         file_put_contents($filename, json_encode($all_included_files));
     }
-
-
 
     static function dump($variable) {
         echo("<pre>");
@@ -123,8 +122,6 @@ class Util {
         $parts = explode(".", $url_host);
         return $parts[count($parts) - 2];
     }
-
-
 
     static function getVendorDir() {
         if (defined("COMPOSER_VENDOR_DIR")) {
@@ -230,7 +227,7 @@ class Util {
         echo("<pre>" . print_r($mixed, 1) . "</pre>");
     }
 
-    static function envReplace($searh, $replace,$varname){
+    static function envReplace($searh, $replace, $varname) {
         $value = getenv($varname);
         $value = str_replace($searh, $replace, $value);
         putenv("$varname=$value");
@@ -250,12 +247,13 @@ class Util {
      *
      * @return bool
      */
-    static function isCli(){
-        if(!self::onAppEngine() && php_sapi_name() === "cli"){
+    static function isCli() {
+        if (!self::onAppEngine() && php_sapi_name() === "cli") {
             return true;
         }
         return false;
     }
+
     /**
      * Determines if this an App Engine instance, by accessing the
      * SERVER_SOFTWARE environment variable (prod) or the APPENGINE_RUNTIME
@@ -265,8 +263,7 @@ class Util {
      *
      * @return true if this an App Engine Instance, false otherwise
      */
-    public static function onAppEngine()
-    {
+    public static function onAppEngine() {
         $appEngineProduction = isset($_SERVER['SERVER_SOFTWARE']) &&
             0 === strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine');
         if ($appEngineProduction) {
@@ -284,13 +281,12 @@ class Util {
      * Are we running in Google AppEngine?
      * return bool
      */
-    public static function isAppEngine()
-    {
+    public static function isAppEngine() {
         return (isset($_SERVER['SERVER_SOFTWARE']) &&
             strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine') !== false);
     }
 
-    public static function getParamsFromRequest(RequestInterface $request){
+    public static function getParamsFromRequest(RequestInterface $request) {
         $post_params = [];
         $get_params = [];
         parse_str($request->getBody()->getContents(), $post_params);
@@ -311,17 +307,27 @@ class Util {
      * @return String containing either just a URL or a complete image tag
      * @source https://gravatar.com/site/implement/images/php/
      */
-    public static function getGravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+    public static function getGravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array()) {
         $url = 'https://www.gravatar.com/avatar/';
-        $url .= md5( strtolower( trim( $email ) ) );
+        $url .= md5(strtolower(trim($email)));
         $url .= "?s=$s&d=$d&r=$r";
-        if ( $img ) {
+        if ($img) {
             $url = '<img src="' . $url . '"';
-            foreach ( $atts as $key => $val )
+            foreach ($atts as $key => $val)
                 $url .= ' ' . $key . '="' . $val . '"';
             $url .= ' />';
         }
         return $url;
+    }
+
+    public static function base64UrlEncode($input) {
+        $encoded = StringUtil::base64UrlEncode($input);
+        return trim($encoded, ",");
+
+    }
+
+    public static function base64UrlDecode($input) {
+        return StringUtil::base64UrlDecode($input);
     }
 }
 

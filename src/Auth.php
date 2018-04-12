@@ -43,8 +43,8 @@ class Auth {
         return Util::getHomeUrl() . Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
     }
 
-    static function getAuthRedirectUrl() {
-        $client = self::getGoogleClientByEmail();
+    static function getAuthRedirectUrl($email = false) {
+        $client = self::getGoogleClientByEmail($email);
         return $client->createAuthUrl();
     }
 
@@ -81,8 +81,8 @@ class Auth {
         $client->setAccessType('offline');        // offline access
         $client->setIncludeGrantedScopes(true);   // incremental auth
         $client->setApprovalPrompt('force');
-        $client->setLoginHint($email);
         if ($email) {
+            $client->setLoginHint($email);
             $user_data = DataStore::retriveTokenByUserEmail($email);
             if ($user_data && isset($user_data["access_token"])) {
                 $client = self::refreshTokenIfExpired($user_data, $client);

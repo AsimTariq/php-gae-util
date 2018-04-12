@@ -14,6 +14,7 @@ class Moment {
     const MYSQL_DATETIME_FORMAT = 'Y-m-d H:i:s';
     const ONEDAY = 86400;
     const ONEHOUR = 3600;
+    const ONEYEAR = 31536000;
 
     static function mysqlDatetime($time = null) {
         if (is_null($time)) {
@@ -54,7 +55,10 @@ class Moment {
     }
 
     static function dayId($time = null) {
-        return date("Ymd", $time);
+        if (is_null($time)) {
+            $time = time();
+        }
+        return (int)date("Ymd", $time);
     }
 
     static function yesterday() {
