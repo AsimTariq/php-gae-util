@@ -109,6 +109,10 @@ class Moment {
         return new \DateTime($date);
     }
 
+    static function timeToMonthId($time) {
+        return (int)date("Ym", $time);
+    }
+
     static function getPeriodsFromMonthIds($start_month_id, $end_month_id) {
         $start_date = self::monthIdToDateTime($start_month_id);
         $end_date = self::monthIdToDateTime($end_month_id);

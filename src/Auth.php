@@ -135,7 +135,15 @@ class Auth {
         }
         return $client;
     }
-
+    static function createSimpleLoginURL($redirect_to){
+        if (Util::isDevServer()) {
+            $root = Util::getHomeUrl();
+        } else {
+            $root = "";
+        }
+        $login_url = $root . UserService::createLoginURL($redirect_to);
+        return $login_url;
+    }
     static function createLoginURL($extra_provider = null) {
         if (Util::isDevServer()) {
             $root = Util::getHomeUrl();
@@ -166,10 +174,12 @@ class Auth {
      * @return array
      */
     static function getSimpleSessionData($return_to = "/") {
+
         $data = [];
         $current_user = UserService::getCurrentUser();
         $data["logout_url"] = self::createLogoutURL();
         $data["login_url"] = self::createLoginURL($return_to);
+        $data["google_login_url"] = self::getAuthRedirectUrl();
         $data["logged_in"] = (bool)$current_user;
         $data["user_is_admin"] = self::isCurrentUserAdmin();
         $data["user_email"] = self::getCurrentUserEmail();
