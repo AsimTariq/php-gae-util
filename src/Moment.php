@@ -42,6 +42,10 @@ class Moment {
         return strtotime(date("Y-m-d", $nextWeekday) . " " . date("H:i:s", $originalTime));
     }
 
+    static function year($timestamp) {
+        return date("Y", $timestamp);
+    }
+
     static function ymdDate($time = null) {
         return date("Y-m-d", $time);
     }

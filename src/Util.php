@@ -209,7 +209,10 @@ class Util {
         } else {
             return false;
         }
+    }
 
+    static function getHostFromURL($url) {
+        return parse_url($url, PHP_URL_HOST);
     }
 
     static function getLocalPartFromEmail($email) {
