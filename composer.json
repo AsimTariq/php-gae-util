@@ -2,7 +2,7 @@
   "name": "mijohansen/php-gae-util",
   "description": "Utility belt for common tasks in Google App Engine for PHP.",
   "type": "library",
-  "version": "0.7.7",
+  "version": "0.9.0",
   "minimum-stability": "dev",
   "prefer-stable": true,
   "license": "Apache-2.0",
@@ -13,13 +13,16 @@
     }
   ],
   "require": {
-    "php": ">=5.5",
     "google/apiclient": "v2.*",
-    "tomwalder/php-gds": "v4.*",
-    "hassankhan/config": "v1.*",
     "google/appengine-php-sdk": "v1.*",
+    "google/cloud-storage": "v1.*",
+    "hassankhan/config": "v1.*",
     "monolog/monolog": "v1.*",
-    "google/cloud-storage": "v1.*"
+    "php": ">=5.5",
+    "tomwalder/php-gds": "v4.*",
+    "ext-openssl":"*",
+    "ext-json": "*",
+    "fig/link-util": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -32,6 +35,8 @@
   },
   "scripts": {
     "test": "$(gcloud beta emulators datastore env-init); phpunit",
-    "test1": "$(gcloud beta emulators datastore env-init); phpunit tests/UtilTest.php"
+    "test1": "$(gcloud beta emulators datastore env-init); phpunit tests/UtilTest.php",
+    "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
+    "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses"
   }
 }

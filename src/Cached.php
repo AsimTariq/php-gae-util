@@ -8,6 +8,12 @@ class Cached {
     protected $_data;
     protected $_ignore_cache = false;
 
+    /**
+     * Cached constructor.
+     *
+     * @param $cache_key
+     * @param bool $ignore_cache
+     */
     public function __construct($cache_key, $ignore_cache = false) {
         $this->_key = $cache_key;
         if ($ignore_cache) {
@@ -15,17 +21,26 @@ class Cached {
         } else {
             $this->_data = self::client()->get($this->_key);
         }
-
     }
 
+    /**
+     * @return bool
+     */
     public function exists() {
         return !empty($this->_data);
     }
 
+    /**
+     * @return mixed|\the
+     */
     public function get() {
         return $this->_data;
     }
 
+    /**
+     * @param $value
+     * @param int $expiration
+     */
     public function set($value, $expiration = 3600) {
         $this->_data = $value;
         if (!$this->_ignore_cache) {

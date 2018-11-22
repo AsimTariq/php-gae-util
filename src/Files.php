@@ -74,6 +74,11 @@ class Files {
         }
     }
 
+    /**
+     * @param $filename
+     * @param null $default
+     * @return mixed|null
+     */
     static function getStorageJson($filename, $default = null) {
         $object = self::getStorageObject($filename);
         if ($object) {

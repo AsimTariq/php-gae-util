@@ -71,6 +71,8 @@ class JWT {
     }
 
     /**
+     * @param $current_user_email
+     * @param null $ttl
      * @return string
      * @throws \Exception
      */

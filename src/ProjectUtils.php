@@ -9,8 +9,12 @@
 namespace GaeUtil;
 use Composer\Autoload\ClassLoader;
 
-class Composer {
+class ProjectUtils {
 
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
     static function getVendorDir() {
         if (defined("COMPOSER_VENDOR_DIR")) {
             $vendorDir = COMPOSER_VENDOR_DIR;
@@ -21,12 +25,12 @@ class Composer {
         return $vendorDir;
     }
 
-    static function getComposerFilePath() {
+    static function getComposerJsonPath() {
         return realpath(self::getVendorDir() . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "composer.json");
     }
 
     static function getComposerData() {
-        $content = file_get_contents(self::getComposerFilePath());
+        $content = file_get_contents(self::getComposerJsonPath());
         return json_decode($content);
     }
 }

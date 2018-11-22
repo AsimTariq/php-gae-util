@@ -2,7 +2,8 @@
 
 namespace GaeUtil;
 
-use Composer\Autoload\ClassLoader;
+
+use GaeSlim\ProjectUtils;
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\util\StringUtil;
 use Psr\Http\Message\RequestInterface;
@@ -124,13 +125,7 @@ class Util {
     }
 
     static function getVendorDir() {
-        if (defined("COMPOSER_VENDOR_DIR")) {
-            $vendorDir = COMPOSER_VENDOR_DIR;
-        } else {
-            $reflection = new \ReflectionClass(ClassLoader::class);
-            $vendorDir = dirname(dirname($reflection->getFileName()));
-        }
-        return $vendorDir;
+        return ProjectUtils::getVendorDir();
     }
 
     static function redirect($url) {

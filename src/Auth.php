@@ -8,6 +8,7 @@
 
 namespace GaeUtil;
 
+use GaeUtil\Dtos\UserDataDto;
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
@@ -39,15 +40,29 @@ class Auth {
         return $user_data;
     }
 
+    /**
+     * @return string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getCallbackUrl() {
         return Util::getHomeUrl() . Conf::get("auth_callback_url", getenv('AUTH_CALLBACK_URL'));
     }
 
+    /**
+     * @param bool $email
+     * @return string
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getAuthRedirectUrl($email = false) {
         $client = self::getGoogleClientByEmail($email);
         return $client->createAuthUrl();
     }
 
+    /**
+     * @return array|false|mixed|null|string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getConfScopes() {
         $scopes = Conf::get("scopes", []);
         /**
@@ -61,6 +76,8 @@ class Auth {
 
     /**
      * @return \Google_Client
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
      */
     static protected function getGoogleClient() {
         $client = GoogleApis::getGoogleClient("GaeUtil Auth");
@@ -72,16 +89,18 @@ class Auth {
     }
 
     /**
-     *
+     * @param bool $email
      * @return \Google_Client
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
      */
-    static function getGoogleClientByEmail($email = false) {
+    static function getGoogleClientByEmail($email = null) {
         $client = self::getGoogleClient();
         $client->setRedirectUri(self::getCallbackUrl());
         $client->setAccessType('offline');        // offline access
         $client->setIncludeGrantedScopes(true);   // incremental auth
         $client->setApprovalPrompt('force');
-        if ($email) {
+        if (!is_null($email)) {
             $client->setLoginHint($email);
             $user_data = DataStore::retriveTokenByUserEmail($email);
             if ($user_data && isset($user_data["access_token"])) {
@@ -91,6 +110,11 @@ class Auth {
         return $client;
     }
 
+    /**
+     * @return \Google_Client
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getGoogleClientForCurrentUser() {
         $user_email = self::getCurrentUserEmail();
         return self::getGoogleClientByEmail($user_email);
@@ -98,6 +122,8 @@ class Auth {
 
     /**
      * @param $scope
+     * @param $scope
+     * @param null $domain
      * @return \Google_Client[]
      */
     static function getGoogleClientsByScope($scope, $domain = null) {
@@ -113,6 +139,13 @@ class Auth {
         return $clients;
     }
 
+    /**
+     * @param $user_data_content
+     * @param \Google_Client|null $client
+     * @return \Google_Client
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static public function refreshTokenIfExpired($user_data_content, \Google_Client $client = null) {
         if (is_null($client)) {
             $client = self::getGoogleClient();
@@ -135,30 +168,42 @@ class Auth {
         }
         return $client;
     }
-    static function createSimpleLoginURL($redirect_to){
-        if (Util::isDevServer()) {
-            $root = Util::getHomeUrl();
-        } else {
-            $root = "";
-        }
-        $login_url = $root . UserService::createLoginURL($redirect_to);
+
+    static function rootUrl() {
+        return Util::isDevServer() ? Util::getHomeUrl() : "";
+    }
+
+    /**
+     * @param $redirect_to
+     * @return string
+     * @throws \google\appengine\api\users\UsersException
+     */
+    static function createSimpleLoginURL($redirect_to) {
+        $login_url = self::rootUrl() . UserService::createLoginURL($redirect_to);
         return $login_url;
     }
+
+    /**
+     * @param null $extra_provider
+     * @return string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     * @throws \google\appengine\api\users\UsersException
+     */
     static function createLoginURL($extra_provider = null) {
-        if (Util::isDevServer()) {
-            $root = Util::getHomeUrl();
-        } else {
-            $root = "";
-        }
         if (!is_null($extra_provider)) {
             $provider_param = "?next=" + $extra_provider;
         } else {
             $provider_param = "";
         }
-        $login_url = $root . UserService::createLoginURL(self::getCallbackUrl() . $provider_param);
+        $login_url = self::rootUrl() . UserService::createLoginURL(self::getCallbackUrl() . $provider_param);
         return $login_url;
     }
 
+    /**
+     * @param string $path
+     * @return string
+     * @throws \google\appengine\api\users\UsersException
+     */
     static function createLogoutURL($path = "/") {
         if (Util::isDevServer()) {
             return Util::getHomeUrl() . UserService::createLogoutURL($path);
@@ -172,6 +217,9 @@ class Auth {
      *
      * @param string $return_to
      * @return array
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     * @throws \google\appengine\api\users\UsersException
      */
     static function getSimpleSessionData($return_to = "/") {
 
@@ -199,6 +247,14 @@ class Auth {
 
     }
 
+    /**
+     * @param array $authorized_domains
+     * @param null $extra_provider
+     * @return array
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     * @throws \google\appengine\api\users\UsersException
+     */
     static function getCurrentUserSessionData($authorized_domains = [], $extra_provider = null) {
         $data = [];
         $data["logged_in"] = false;
@@ -269,7 +325,9 @@ class Auth {
 
     /**
      * @param $code
-     * @return mixed
+     * @return array
+     * @throws \Google_Exception
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
      */
     static function fetchAndSaveTokenByCode($code) {
         $client = self::getGoogleClientByEmail();
@@ -362,7 +420,8 @@ class Auth {
     }
 
     /**
-     * Retrives the info about the current service account.
+     * @return mixed
+     * @throws \google\appengine\api\app_identity\AppIdentityException
      */
     static function getCurrentServiceAccountInfo() {
         $access_token = AppIdentityService::getAccessToken([]);

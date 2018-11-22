@@ -17,7 +17,7 @@ namespace GaeUtil;
 class Defaulter {
 
     /**
-     * Function that sets some defaults in Composer.json
+     * Function that sets some defaults in ProjectUtils.json
      * @param $project_directory
      * @param $app_engine_project
      */

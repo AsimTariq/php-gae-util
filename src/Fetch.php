@@ -86,7 +86,7 @@ class Fetch {
     }
 
     /**
-     * Wrapper for the Fetch::internal_service method that caches.
+     * Wrapper for the Fetch::internalService method that caches.
      *
      * @param $application_id
      * @param $service

@@ -18,6 +18,7 @@ class CloudSQL {
         // TODO: Assign values to desired properties of `requestBody`:
         $requestBody = new \Google_Service_SQLAdmin_InstancesExportRequest();
         $exportContext = new \Google_Service_SQLAdmin_ExportContext();
+        $sqlExportOptions = new \Google_Service_SQLAdmin_ExportContextSqlExportOptions();
         $exportContext->setSqlExportOptions($sqlExportOptions);
         $exportContext->setDatabases([$database]);
         $exportContext->setUri($uri);

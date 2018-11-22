@@ -19,6 +19,7 @@ class Conf {
 
     /**
      * @return Config
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
      */
     static function getInstance() {
         static $instance;
@@ -80,6 +81,12 @@ class Conf {
         return $instance;
     }
 
+    /**
+     * @param $key
+     * @param null $default
+     * @return array|false|mixed|null|string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function get($key, $default = null) {
         $env_var = getenv(strtoupper($key));
         if ($env_var) {
@@ -115,7 +122,7 @@ class Conf {
     }
 
     static function getConfFilepath($filename) {
-        $vendorDir = Composer::getVendorDir();
+        $vendorDir = ProjectUtils::getVendorDir();
         $conf_filepath_real = Util::resolveFilePath($vendorDir, "..", self::CONFIG_DIR, $filename);
         if (!file_exists($conf_filepath_real)) {
             $conf_filepath_real = Util::resolveFilePath(dirname(__FILE__), "..", self::CONFIG_DIR, $filename);

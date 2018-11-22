@@ -22,6 +22,9 @@ class DataStore {
 
     protected static $obj_gateway;
 
+    /**
+     * @param Gateway $obj_gateway
+     */
     static function setGateway(Gateway $obj_gateway) {
         self::$obj_gateway = $obj_gateway;
     }
@@ -35,18 +38,34 @@ class DataStore {
         return new Store($kind_schema, self::$obj_gateway);
     }
 
+    /**
+     * @return array|false|mixed|null|string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getGoogleAccessTokenKind() {
         return Conf::get("datastore_kind", self::DEFAULT_TOKEN_KIND);
     }
 
+    /**
+     * @return array|false|mixed|null|string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getWorkflowKind() {
         return Conf::get(self::CONF_WORKFLOW_KIND_KEY, self::DEFAULT_WORKFLOW_KIND);
     }
 
+    /**
+     * @return string
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     */
     static function getWorkflowJobKind() {
         return self::getWorkflowKind() . "Jobs";
     }
 
+    /**
+     * @param $kind_schema
+     * @throws \Exception
+     */
     static function deleteAll($kind_schema) {
         if (Util::isDevServer() || Util::isCli()) {
             $store = self::store($kind_schema);
@@ -58,6 +77,9 @@ class DataStore {
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     static function deleteWorkflowJobs() {
         return self::deleteAll(self::getWorkflowJobKind());
     }
@@ -179,8 +201,8 @@ class DataStore {
     }
 
     /**
-     * @param $workflow_key
      * @return array
+     * @throws \Exception
      */
     static function retrieveActiveWorkflows() {
         $kind_schema = self::getWorkflowKind();

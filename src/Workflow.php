@@ -72,6 +72,15 @@ class Workflow {
         return false;
     }
 
+    static function getAllWorkflows() {
+        $workflows = DataStore::fetchAll(DataStore::DEFAULT_WORKFLOW_KIND);
+        foreach ($workflows as $key => $workflow_config) {
+            $workflows[$key]["workflow_key"] = self::createWorkflowKeyFromConfig($workflow_config);
+
+        }
+        return $workflows;
+    }
+
     /**
      * Returns Workflow_Job_Config
      *
@@ -333,12 +342,8 @@ class Workflow {
      */
     static function endpointHandler(RequestInterface $request) {
         $get_param = "workflow_key";
-        $post_params = [];
-        $get_params = [];
-        parse_str($request->getBody()->getContents(), $post_params);
-        parse_str($request->getUri()->getQuery(), $get_params);
-        $query_params = array_merge_recursive($post_params, $get_params);
-        syslog(LOG_INFO, __METHOD__ . " invoked with " . json_encode($query_params));
+        $query_params = Util::getParamsFromRequest($request);
+
         if (isset($query_params[$get_param])) {
             // This is a script run request
             $result = self::runFromKey($query_params[$get_param]);

@@ -8,49 +8,59 @@
 
 namespace GaeUtil;
 
+use Fig\Link\GenericLinkProvider;
+use Fig\Link\Link;
+use GaeUtil\Dtos\AppStatusDto;
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
 class State {
 
-    static function isDevServer() {
-        return (strpos(getenv('SERVER_SOFTWARE'), 'Development') === 0);
-    }
-
+    /**
+     * @param array $links
+     * @return AppStatusDto
+     * @throws \Noodlehaus\Exception\EmptyDirectoryException
+     * @throws \google\appengine\api\users\UsersException
+     */
     static function status($links = []) {
-        $data = [
-            "application_id" => Util::getApplicationId(),
-            "service" => Util::getModuleId(),
-            "is_dev" => self::isDevServer(),
-            "default_hostname" => AppIdentityService::getDefaultVersionHostname(),
-            "is_admin" => false,
-            "user" => false,
-        ];
+        $status = new AppStatusDto();
+        $status->applicationId = Util::getApplicationId();
+        $status->service = Util::getModuleId();
+        $status->isDevServer = Util::isDevServer();
+        $status->defaultHostname = AppIdentityService::getDefaultVersionHostname();
+        $status->isAdmin = UserService::isCurrentUserAdmin();
+        $linkProvider = new GenericLinkProvider();
         $user = UserService::getCurrentUser();
         if ($user) {
-            $data["user"] = $user;
-            $data["logout"] = Auth::createLogoutURL();
+            $status->user = $user;
+            $linkProvider = $linkProvider->withLink(new Link("logout", Auth::createLogoutURL()));
         } else {
-            $data["login"] = Auth::createLoginURL();
+            $linkProvider = $linkProvider->withLink(new Link("login", Auth::createLoginURL()));
+        }
+        foreach ($links as $link) {
+            $linkProvider = $linkProvider->withLink(new Link("menu", $link));
+        };
+        foreach ($linkProvider->getLinks() as $link) {
+            $status->links[] = [
+                "href" => $link->getHref(),
+                "rels" => $link->getRels(),
+                "attributes" => $link->getAttributes(),
+            ];
         }
 
-        $data["links"] = $links;
-
-        if (UserService::isCurrentUserAdmin()) {
-            $data["is_admin"] = true;
-
-            $data["errors"] = [];
+        if ($status->isAdmin) {
+            $status->errors = [];
             if (JWT::internalSecretIsConfigured()) {
-                $data["internal_token"] = "Bearer " . JWT::getInternalToken();
+                $status->internalToken = "Bearer " . JWT::getInternalToken();
             } else {
-                $data["internal_token"] = false;
-                $data["errors"][] = [
+                $status->errors[] = [
                     "message" => "Internal secret is not configured. Add jwt_internal_secret to a configuration file."
                 ];
             }
-            $data["external_token"] = "Bearer " . JWT::getExternalToken(Auth::getCurrentUserEmail(), Moment::ONEDAY);
-            $data["composer"] = Composer::getComposerData();
+
+            $status->externalToken = "Bearer " . JWT::getExternalToken(Auth::getCurrentUserEmail(), Moment::ONEDAY);
+            $status->composer = Composer::getComposerData();
         }
-        return $data;
+        return $status;
     }
 }
