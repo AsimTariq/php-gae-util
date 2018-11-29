@@ -108,7 +108,6 @@ class WorkflowTest extends TestCase {
      * @throws Exception
      */
     public function testStartDuplicateJobShouldFail() {
-        $this->expectException(Exception::class);
         $initial_state = ["2018-01-01"];
         $initial_params = ["parameter1", "parameter2"];
         $workflow_config = Workflow::createWorkflow([
@@ -118,11 +117,15 @@ class WorkflowTest extends TestCase {
         ]);
         $workflow_job_key = Workflow::createWorkflowJobKey();
         $workflow_job_config = Workflow::createJobConfig($workflow_config);
-        Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
-
-        $workflow_job_key = Workflow::createWorkflowJobKey();
-        Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
-
+        $exception_trown = null;
+        try {
+            Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
+            $workflow_job_key = Workflow::createWorkflowJobKey();
+            Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
+        } catch (Exception $exception) {
+            $exception_trown = $exception;
+        }
+        $this->assertNotSame(null, $exception_trown);
     }
 
     /**
