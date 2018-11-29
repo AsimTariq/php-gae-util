@@ -21,8 +21,8 @@ script:
 - gcloud version
 - gcloud components install cloud-datastore-emulator
 - nohup gcloud beta emulators datastore start --no-store-on-disk &
-- $(gcloud beta emulators datastore env-init)
 - sleep 5
+- $(gcloud beta emulators datastore env-init)
 - phpunit
 
 cache:
