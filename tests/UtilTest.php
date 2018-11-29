@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 class UtilTest extends TestCase {
 
     public function setUp() {
+        DataStore::changeToTestMode();
         DataStore::deleteAll("someSchema");
     }
 
@@ -17,6 +18,6 @@ class UtilTest extends TestCase {
         ];
         DataStore::upsert($kind_schema, __METHOD__, $input_data);
         $actual = DataStore::fetchAll($kind_schema);
-       $this->assertEquals([$input_data], $actual);
+        $this->assertEquals([$input_data], $actual);
     }
 }

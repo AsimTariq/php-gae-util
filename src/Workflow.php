@@ -272,7 +272,9 @@ class Workflow {
      * @throws \Exception
      */
     static function startJob($workflow_job_key, $workflow_job_config, $start_state) {
+
         $workflow_key = self::createWorkflowKeyFromConfig($workflow_job_config);
+
         $workflow_name = $workflow_job_config["name"];
         /**
          * Checking if a flow is already running
@@ -280,10 +282,12 @@ class Workflow {
         if (self::isWorkflowRunning($workflow_key)) {
             throw new \Exception("A job for $workflow_name is already running.");
         }
+
         /**
          *  Check how long its since last job run... we just don't want to spam errors.
          */
         $error_ttl = Util::isDevServer() ? 60 : Moment::ONEDAY;
+
         if (self::isWorkflowInErrorState($workflow_key, $error_ttl)) {
             throw new \Exception("A job for $workflow_name have failed less than $error_ttl seconds ago, skipping.");
         }
@@ -294,6 +298,7 @@ class Workflow {
             "end_state" => $start_state,
             "finished" => new \DateTime(),
         ]);
+
         DataStore::saveWorkflowJob($workflow_job_key, $workflow_job_config);
         return $workflow_job_config;
     }
