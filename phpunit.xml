@@ -1,10 +1,8 @@
-<phpunit colors="true" bootstrap="tests/base/bootstrap.php">
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit bootstrap="./vendor/autoload.php">
     <testsuites>
-        <testsuite name="all">
+        <testsuite name="Slim Swagger Tests">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-    <php>
-        <includePath>vendor/google/appengine-php-sdk</includePath>
-    </php>
 </phpunit>

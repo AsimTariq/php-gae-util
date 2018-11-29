@@ -12,7 +12,7 @@ class CloudSQL {
 
     static function cloneProdDatabase($project, $instance, $database, $bucket, $local_user = null, $local_pass = null) {
         $client = GoogleApis::getGoogleClient(__METHOD__);
-        $client->addScope('https://www.googleapis.com/auth/cloud-platform');
+        $client->addScope(\Google_Service_SQLAdmin::CLOUD_PLATFORM);
         $service = new \Google_Service_SQLAdmin($client);
         $uri = "gs://{$bucket}/{$database}.sql";
         // TODO: Assign values to desired properties of `requestBody`:
