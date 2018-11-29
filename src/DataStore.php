@@ -12,6 +12,8 @@ use GDS\Entity;
 use GDS\Gateway;
 use GDS\Gateway\RESTv1;
 use GDS\Store;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 
 class DataStore {
 
@@ -245,11 +247,20 @@ class DataStore {
     }
 
     static function changeToTestMode() {
-        $str_project_id = getenv("DATASTORE_PROJECT_ID");
-        Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST");
-        Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST_PATH");
-        Util::envReplace("::1", "localhost", "DATASTORE_HOST");
-        self::setGateway(new RESTv1($str_project_id));
+        $str_project_id = "sut-project";
+        //Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST");
+        //Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST_PATH");
+        //Util::envReplace("::1", "localhost", "DATASTORE_HOST");
+        //putenv("DATASTORE_EMULATOR_HOST=localhost:8081");
+        //putenv("DATASTORE_PROJECT_ID=$str_project_id");
+        putenv ( "SUPPRESS_GCLOUD_CREDS_WARNING=true" );
+        $gateway = new RESTv1($str_project_id);
+        $client = new Client([
+            'handler' => HandlerStack::create(),
+            'base_url' => getenv("DATASTORE_EMULATOR_HOST")
+        ]);
+        $gateway->setHttpClient($client);
+        self::setGateway($gateway);
     }
 
 }

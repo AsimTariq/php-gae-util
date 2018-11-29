@@ -15,6 +15,9 @@ class Cached {
      * @param bool $ignore_cache
      */
     public function __construct($cache_key, $ignore_cache = false) {
+        if (Util::isCli()) {
+            $ignore_cache = true;
+        }
         $this->_key = $cache_key;
         if ($ignore_cache) {
             $this->_ignore_cache = true;

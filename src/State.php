@@ -23,20 +23,27 @@ class State {
      * @throws \google\appengine\api\users\UsersException
      */
     static function status($links = []) {
+
         $status = new AppStatusDto();
+
         $status->applicationId = Util::getApplicationId();
+
         $status->service = Util::getModuleId();
         $status->isDevServer = Util::isDevServer();
         $status->defaultHostname = AppIdentityService::getDefaultVersionHostname();
         $status->isAdmin = UserService::isCurrentUserAdmin();
+
         $linkProvider = new GenericLinkProvider();
+
         $user = UserService::getCurrentUser();
+
         if ($user) {
             $status->user = $user;
             $linkProvider = $linkProvider->withLink(new Link("logout", Auth::createLogoutURL()));
         } else {
             $linkProvider = $linkProvider->withLink(new Link("login", Auth::createLoginURL()));
         }
+
         foreach ($links as $link) {
             $linkProvider = $linkProvider->withLink(new Link("menu", $link));
         };
@@ -59,8 +66,9 @@ class State {
             }
 
             $status->externalToken = "Bearer " . JWT::getExternalToken(Auth::getCurrentUserEmail(), Moment::ONEDAY);
-            $status->composer = Composer::getComposerData();
+            $status->composer = ProjectUtils::getComposerData();
         }
+
         return $status;
     }
 }

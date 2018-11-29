@@ -48,7 +48,7 @@ GAE devserver emulator.
 
 ```bash
 $ gcloud components install cloud-datastore-emulator
-$ gcloud beta emulators datastore start
+$ gcloud beta emulators datastore start --no-store-on-disk
 ```
 
 
@@ -104,4 +104,4 @@ camelCase. And I try to follow [PSR-1] and [PSR-2]
 [Application Default Credentials]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
 
 
-
+### Contributing

@@ -190,13 +190,18 @@ class Auth {
      * @throws \google\appengine\api\users\UsersException
      */
     static function createLoginURL($extra_provider = null) {
-        if (!is_null($extra_provider)) {
-            $provider_param = "?next=" + $extra_provider;
+        if(!Util::isCli()){
+            if (!is_null($extra_provider)) {
+                $provider_param = "?next=" + $extra_provider;
+            } else {
+                $provider_param = "";
+            }
+            $login_url = self::rootUrl() . UserService::createLoginURL(self::getCallbackUrl() . $provider_param);
+            return $login_url;
         } else {
-            $provider_param = "";
+            return "http://dummy/login-url";
         }
-        $login_url = self::rootUrl() . UserService::createLoginURL(self::getCallbackUrl() . $provider_param);
-        return $login_url;
+
     }
 
     /**
@@ -205,11 +210,16 @@ class Auth {
      * @throws \google\appengine\api\users\UsersException
      */
     static function createLogoutURL($path = "/") {
-        if (Util::isDevServer()) {
-            return Util::getHomeUrl() . UserService::createLogoutURL($path);
+        if(!Util::isCli()){
+            if (Util::isDevServer()) {
+                return Util::getHomeUrl() . UserService::createLogoutURL($path);
+            } else {
+                return UserService::createLogoutURL($path);
+            }
         } else {
-            return UserService::createLogoutURL($path);
+            return "http://dummy/logout-url";
         }
+
     }
 
     /**
