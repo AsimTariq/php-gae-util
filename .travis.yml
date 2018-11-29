@@ -15,6 +15,7 @@ install:
 script:
 - export CLOUDSDK_CORE_PROJECT=php-gae-util-test-project
 - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/vendor/google/auth/tests/fixtures/.config/gcloud/application_default_credentials.json
+- export SUPPRESS_GCLOUD_CREDS_WARNING=true
 - gcloud version || true
 - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
 - source /home/travis/google-cloud-sdk/path.bash.inc
@@ -23,7 +24,6 @@ script:
 - nohup gcloud beta emulators datastore start --no-store-on-disk &
 - sleep 5
 - $(gcloud beta emulators datastore env-init)
-- export SUPPRESS_GCLOUD_CREDS_WARNING=true
 - phpunit
 
 cache:

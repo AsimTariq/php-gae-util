@@ -12,6 +12,8 @@ use GDS\Entity;
 use GDS\Gateway;
 use GDS\Gateway\RESTv1;
 use GDS\Store;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 
 class DataStore {
 
@@ -252,7 +254,13 @@ class DataStore {
         //putenv("DATASTORE_EMULATOR_HOST=localhost:8081");
         //putenv("DATASTORE_PROJECT_ID=$str_project_id");
         putenv ( "SUPPRESS_GCLOUD_CREDS_WARNING=true" );
-        self::setGateway(new RESTv1($str_project_id));
+        $gateway = new RESTv1($str_project_id);
+        $client = new Client([
+            'handler' => HandlerStack::create(),
+            'base_url' => getenv("DATASTORE_EMULATOR_HOST")
+        ]);
+        $gateway->setHttpClient($client);
+        self::setGateway($gateway);
     }
 
 }
