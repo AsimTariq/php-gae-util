@@ -20,7 +20,9 @@ script:
 - source /home/travis/google-cloud-sdk/path.bash.inc
 - gcloud version
 - gcloud components install cloud-datastore-emulator
-- nohup $(gcloud beta emulators datastore start) &
+- nohup gcloud beta emulators datastore start --no-store-on-disk &
+- $(gcloud beta emulators datastore env-init)
+- sleep 5
 - phpunit
 
 cache:

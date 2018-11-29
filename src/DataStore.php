@@ -249,8 +249,8 @@ class DataStore {
         //Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST");
         //Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST_PATH");
         //Util::envReplace("::1", "localhost", "DATASTORE_HOST");
-        putenv("DATASTORE_EMULATOR_HOST=localhost:8081");
-        putenv("DATASTORE_PROJECT_ID=$str_project_id");
+        //putenv("DATASTORE_EMULATOR_HOST=localhost:8081");
+        //putenv("DATASTORE_PROJECT_ID=$str_project_id");
         putenv ( "SUPPRESS_GCLOUD_CREDS_WARNING=true" );
         self::setGateway(new RESTv1($str_project_id));
     }
