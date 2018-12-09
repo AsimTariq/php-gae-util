@@ -33,4 +33,16 @@ class ProjectUtils {
         $content = file_get_contents(self::getComposerJsonPath());
         return json_decode($content);
     }
+
+    /**
+     * Returns the current projects root.
+     */
+    static function getProjectRoot(){
+        return dirname(self::getComposerJsonPath());
+    }
+
+    static function getProjectRelativePath($path){
+        $root = ProjectUtils::getProjectRoot();
+       return str_replace($root, "", $path);
+    }
 }

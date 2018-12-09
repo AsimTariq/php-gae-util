@@ -59,7 +59,7 @@ class Fetch {
             $url = implode("/", $url);
         }
         $cacheKey = Cached::keymaker(__METHOD__, $url, $params);
-        $cached = new Cached($cacheKey, false);
+        $cached = new Cached($cacheKey);
         if (!$cached->exists()) {
             $result = self::secureUrl($url, $params);
             syslog(LOG_INFO, "Returned " . count($result) . " rows.");

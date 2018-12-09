@@ -41,7 +41,7 @@ class Conf {
                 }
             }
 
-            $cached = new Cached(self::getCacheKey(), Util::isCli());
+            $cached = new Cached(self::getCacheKey());
             if (!$cached->exists()) {
                 $secret_data = [
                     "global_config_is_loaded" => false

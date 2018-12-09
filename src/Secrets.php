@@ -8,6 +8,7 @@
 
 namespace GaeUtil;
 
+use GaeUtil\Dtos\PartlyEncodedJson;
 use Noodlehaus\Config;
 
 /**
@@ -28,6 +29,9 @@ class Secrets {
 
     const ARRAY_CIPHER_NAME = "_cipher";
     const ARRAY_KEY_NAME = "_key_name";
+
+    const SECRET_DUMMY_VALUE = "**secure**";
+    static private $service;
 
     static public function getProjectId() {
         return Conf::get(self::CONF_PROJECT_ID_NAME);
@@ -82,7 +86,6 @@ class Secrets {
         return self::getKeyName($projectId, $locationId, $keyRingId, $cryptoKeyId);
     }
 
-
     static function config($projectId, $keyRingId, $cryptoKeyId) {
         Conf::getInstance()->set(self::CONF_PROJECT_ID_NAME, $projectId);
         Conf::getInstance()->set(self::CONF_KEYRING_ID_NAME, $keyRingId);
@@ -93,11 +96,17 @@ class Secrets {
      * @return \Google_Service_CloudKMS
      */
     static public function getService() {
-        $client = GoogleApis::getGoogleClient();
-        $client->addScope('https://www.googleapis.com/auth/cloud-platform');
-        // Create the Cloud KMS client.
-        $kms = new \Google_Service_CloudKMS($client);
-        return $kms;
+        if (is_null(self::$service)) {
+            $client = GoogleApis::getGoogleClient();
+            $client->addScope('https://www.googleapis.com/auth/cloud-platform');
+            // Create the Cloud KMS client.
+            self::$service = new \Google_Service_CloudKMS($client);
+        }
+        return self::$service;
+    }
+
+    static public function setService($service) {
+        self::$service = $service;
     }
 
     /**
@@ -128,7 +137,6 @@ class Secrets {
         Util::cmdline("\tSaved encrypted text to $ciphertextFileName with key $key_name");
         return true;
     }
-
 
     /**
      * Can receive the config singleton to be able to be used of the config class
@@ -167,8 +175,6 @@ class Secrets {
         Util::isArrayOrFail("Encrypted secrets", $data);
         return $data;
     }
-
-
 
     /**
      * Encrypts a string and returns the base64_encoded response from KMS.
@@ -220,7 +226,7 @@ class Secrets {
             $array_w_secrets[self::ARRAY_KEY_NAME] = $encryption_key_name;
             $array_w_secrets[self::ARRAY_CIPHER_NAME] = self::encryptString(json_encode($secrets), $encryption_key_name);
             $array_w_secrets["_created_time"] = date("c");
-            $array_w_secrets["_created_by"] = self::getService()->getClient()->getClientId();
+            //$array_w_secrets["_created_by"] = self::getService()->getClient()->getClientId();
         }
         return $array_w_secrets;
     }
@@ -270,5 +276,33 @@ class Secrets {
     static public function encryptDotSecretsFile($filename, $array_with_secrets, $key_name) {
         $data = self::encryptDotSecrets($array_with_secrets, $key_name);
         return Files::putJson($filename, $data);
+    }
+
+    /**
+     * @param PartlyEncodedJson $input
+     * @return PartlyEncodedJson
+     */
+    static public function encryptPartlyEncJson(PartlyEncodedJson $input) {
+        $secret_keys = [];
+        $output = clone $input;
+        foreach ($input->attributes as $key => $attribute) {
+            if (in_array($key, $input->secureFields)) {
+                $secret_keys[$key] = $attribute;
+                $output->attributes[$key] = self::SECRET_DUMMY_VALUE;
+            }
+        }
+        $output->ciphertext = self::encryptString(json_encode($secret_keys), $input->keyName);
+        $output->created = date("c");
+        return $output;
+
+    }
+
+    static public function decyptPartlyEncJson(PartlyEncodedJson $partly_enc_json) {
+        $plain_text_raw = self::decryptString($partly_enc_json->ciphertext, $partly_enc_json->keyName);
+        $plain_text = json_decode($plain_text_raw,JSON_OBJECT_AS_ARRAY);
+        foreach ($plain_text as $key => $val){
+            $partly_enc_json->attributes[$key] = $val;
+        }
+        return $partly_enc_json;
     }
 }

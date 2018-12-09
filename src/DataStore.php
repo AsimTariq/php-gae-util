@@ -191,6 +191,7 @@ class DataStore {
     /**
      * @param $workflow_key
      * @return array
+     * @throws \Exception
      */
     static function retrieveMostCurrentWorkflowJob($workflow_key) {
         $kind_schema = self::getWorkflowJobKind();
@@ -248,16 +249,16 @@ class DataStore {
 
     static function changeToTestMode() {
         $str_project_id = "sut-project";
-        //Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST");
-        //Util::envReplace("::1", "localhost", "DATASTORE_EMULATOR_HOST_PATH");
-        //Util::envReplace("::1", "localhost", "DATASTORE_HOST");
-        //putenv("DATASTORE_EMULATOR_HOST=localhost:8081");
-        //putenv("DATASTORE_PROJECT_ID=$str_project_id");
+        shell_exec(shell_exec("gcloud beta emulators datastore env-init"));
         putenv ( "SUPPRESS_GCLOUD_CREDS_WARNING=true" );
         $gateway = new RESTv1($str_project_id);
+        $datastore_emulator_host = getenv("DATASTORE_EMULATOR_HOST");
+        if(!$datastore_emulator_host){
+            exit("datastore emualtor is not started");
+        }
         $client = new Client([
             'handler' => HandlerStack::create(),
-            'base_url' => getenv("DATASTORE_EMULATOR_HOST")
+            'base_url' => $datastore_emulator_host
         ]);
         $gateway->setHttpClient($client);
         self::setGateway($gateway);

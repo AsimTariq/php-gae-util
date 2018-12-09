@@ -8,7 +8,6 @@
 
 namespace GaeUtil;
 
-use GaeUtil\Dtos\UserDataDto;
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
