@@ -30,7 +30,7 @@ class SecretsTest extends TestCase {
             "username" => "not encrypted",
             "password" => "sadfasf sadfasdfasad"
         ];
-        $partly->secureFields = ["password"];
+        $partly->secretFields = ["password"];
         $partly->keyName = "dummy";
         $encrypted_json = Secrets::encryptPartlyEncJson($partly);
         $this->assertEquals($encrypted_json->attributes["password"], Secrets::SECRET_DUMMY_VALUE);

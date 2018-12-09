@@ -52,6 +52,7 @@ $array_with_secrets = [
 $result = Secrets::encrypt_dot_secrets_file($filename, $array_with_secrets, $key_name);
 var_dump($result);
 */
+putenv("SUPPRESS_GCLOUD_CREDS_WARNING=true");
 $test_filename = "gs://redperformance/marathon_api_redp.json";
 $result = Secrets::decryptDotSecretsFile($test_filename);
 print_r($result);

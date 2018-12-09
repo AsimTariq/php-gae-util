@@ -30,7 +30,7 @@ class Secrets {
     const ARRAY_CIPHER_NAME = "_cipher";
     const ARRAY_KEY_NAME = "_key_name";
 
-    const SECRET_DUMMY_VALUE = "**secure**";
+    const SECRET_DUMMY_VALUE = "**secret**";
     static private $service;
 
     static public function getProjectId() {
@@ -286,7 +286,7 @@ class Secrets {
         $secret_keys = [];
         $output = clone $input;
         foreach ($input->attributes as $key => $attribute) {
-            if (in_array($key, $input->secureFields)) {
+            if (in_array($key, $input->secretFields)) {
                 $secret_keys[$key] = $attribute;
                 $output->attributes[$key] = self::SECRET_DUMMY_VALUE;
             }
@@ -304,5 +304,24 @@ class Secrets {
             $partly_enc_json->attributes[$key] = $val;
         }
         return $partly_enc_json;
+    }
+
+    /**
+     * @param $filename
+     * @return PartlyEncodedJson
+     */
+    static public function decyptPartlyEncFile($filename) {
+        $cache_key = Cached::keymaker(__METHOD__, $filename);
+        $cached = new Cached($cache_key);
+        if (!$cached->exists()) {
+            $content = Files::getJson($filename);
+            $partlyEnc = new PartlyEncodedJson();
+            foreach ($content as $key=>$val){
+                $partlyEnc->$key = $val;
+            }
+            $decrypted = self::decyptPartlyEncJson($partlyEnc);
+            $cached->set($decrypted);
+        }
+        return $cached->get();
     }
 }

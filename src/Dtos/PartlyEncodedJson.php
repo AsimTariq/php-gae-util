@@ -9,8 +9,9 @@
 namespace GaeUtil\Dtos;
 
 class PartlyEncodedJson {
+
     var $attributes = [];
-    var $secureFields = [];
+    var $secretFields = [];
     var $keyName;
     var $ciphertext;
     var $created;
