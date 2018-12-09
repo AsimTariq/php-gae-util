@@ -2,17 +2,11 @@ sudo: false
 language: php
 php:
 - 5.5
-- 7.0
+- 7.2
 
 before_install:
 - phpenv config-rm xdebug.ini
-- composer global require hirak/prestissimo --no-interaction --no-suggest
 - find ./src -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
-
-install:
-- composer install --prefer-source --no-interaction --dev --ignore-platform-reqs --no-suggest
-
-script:
 - export CLOUDSDK_CORE_PROJECT=php-gae-util-test-project
 - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/vendor/google/auth/tests/fixtures/.config/gcloud/application_default_credentials.json
 - export SUPPRESS_GCLOUD_CREDS_WARNING=true
@@ -22,7 +16,12 @@ script:
 - gcloud version
 - gcloud components install beta cloud-datastore-emulator
 - nohup gcloud beta emulators datastore start --no-store-on-disk &
-- sleep 5
+- composer global require hirak/prestissimo --no-interaction --no-suggest
+
+install:
+- composer install --prefer-source --no-interaction --dev --ignore-platform-reqs --no-suggest
+
+script:
 - $(gcloud beta emulators datastore env-init)
 - phpunit
 

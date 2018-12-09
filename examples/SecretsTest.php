@@ -8,7 +8,7 @@
 
 use GaeUtil\Secrets;
 
-require_once "../vendor/autoload.php";
+require_once dirname(__FILE__)."/../vendor/autoload.php";
 
 $key_name = "projects/%/locations/%/keyRings/%/cryptoKeys/%";
 function test_string_encrypt($key_name) {

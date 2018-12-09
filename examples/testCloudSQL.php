@@ -2,7 +2,7 @@
 
 use GaeUtil\CloudSQL;
 
-require_once "../vendor/autoload.php";
+require_once dirname(__FILE__)."/../vendor/autoload.php";
 
 CloudSQL::cloneProdDatabase(
     "red-tools",
