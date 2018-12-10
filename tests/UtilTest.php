@@ -5,19 +5,19 @@ use PHPUnit\Framework\TestCase;
 
 class UtilTest extends TestCase {
 
+    var $testSchema = "someSchema";
     public function setUp() {
         DataStore::changeToTestMode();
-        DataStore::deleteAll("someSchema");
+        DataStore::deleteAll($this->testSchema);
     }
 
     function testDatastore() {
-        $kind_schema = "someSchema";
         $input_data = [
             "name" => "Hello world",
             "array" => ["with", "values"]
         ];
-        DataStore::upsert($kind_schema, __METHOD__, $input_data);
-        $actual = DataStore::fetchAll($kind_schema);
+        DataStore::upsert($this->testSchema, __METHOD__, $input_data);
+        $actual = DataStore::fetchAll($this->testSchema);
         $this->assertEquals([$input_data], $actual);
     }
 }

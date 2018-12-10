@@ -249,7 +249,11 @@ class DataStore {
 
     static function changeToTestMode() {
         $str_project_id = "sut-project";
-        shell_exec("$(gcloud beta emulators datastore env-init)");
+        $env_vars = trim(shell_exec("gcloud beta emulators datastore env-init"));
+        foreach (explode(PHP_EOL,$env_vars) as $line){
+            $setting = substr($line, 7);
+            putenv ( $setting );
+        }
         putenv ( "SUPPRESS_GCLOUD_CREDS_WARNING=true" );
         $gateway = new RESTv1($str_project_id);
         $datastore_emulator_host = getenv("DATASTORE_EMULATOR_HOST");

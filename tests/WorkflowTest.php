@@ -120,6 +120,7 @@ class WorkflowTest extends TestCase {
         $exception_trown = null;
         try {
             Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
+            sleep(1);
             $workflow_job_key = Workflow::createWorkflowJobKey();
             Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
         } catch (Exception $exception) {
