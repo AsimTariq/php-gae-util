@@ -3,7 +3,6 @@ language: php
 php:
 - 5.5
 - 7.2
-
 before_install:
 - phpenv config-rm xdebug.ini
 - find ./src -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
@@ -11,7 +10,8 @@ before_install:
 - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/vendor/google/auth/tests/fixtures/.config/gcloud/application_default_credentials.json
 - export SUPPRESS_GCLOUD_CREDS_WARNING=true
 - gcloud version || true
-- if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
+- if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export
+  CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
 - source /home/travis/google-cloud-sdk/path.bash.inc
 - gcloud version
 - gcloud components install beta cloud-datastore-emulator
@@ -19,20 +19,16 @@ before_install:
 - gcloud beta emulators datastore start --no-store-on-disk &
 - sleep 5
 - composer global require hirak/prestissimo --no-interaction --no-suggest
-
 install:
 - composer install --prefer-source --no-interaction --dev --ignore-platform-reqs --no-suggest
-
 script:
-- $(gcloud beta emulators datastore env-init)
+- "$(gcloud beta emulators datastore env-init)"
 - phpunit
-
 cache:
   directories:
-  - $HOME/.cache/composer/files
-  - $HOME/.composer/cache/files
-  - $HOME/google-cloud-sdk/
-
+  - "$HOME/.cache/composer/files"
+  - "$HOME/.composer/cache/files"
+  - "$HOME/google-cloud-sdk/"
 jobs:
   include:
   - stage: automerge
@@ -44,7 +40,6 @@ jobs:
     script: BRANCHES_TO_MERGE_REGEX='^develop' BRANCH_TO_MERGE_INTO=master ./automerge.sh
     if: branch = develop
     php: 7.1
-
 env:
   global:
-    secure: Q8ehzHnM2HjwD4Ofcy2lL4ApYnFyrikTsqGvecyVtJsxr7axl9ALkukEceexxEMvK9zy1j0UqFYmyG4wQyYTlQHErtzGtsxBgzTdGF8OYt0lxQZhm2FS6XWGT1IuM59Zy7aWRYNp3+WX7EeoKbdNzvLvD7aD/p24VmNzz6py7n3jalfrTEdEQMtykISS/yQDgPXSaRvqUDnUr0wVMHlYghBHUiNEtf0PvF2bpfhiU5hsUCD8LcMhzPXCRIvkwxv9vq1SblsFe+s3nQ7w12p/owiLpymgBU3uMYAScuBYwB6fb303FPa9EHDhGo16RZSWHRva58MhiYsa93tidaa5vn7kcIbw7tOW3WZe5sV/VUye8+SJkMnZYbdSNTU1rDCpbkgSTX3vjnmz2JDYcEJXkyVlPa2sfplqleEq4yBovXzR841ILcZl9LDkwaOpOF56nOulh2xJKRm3a6Jr0z/zBsFeIpcHrt2aY8RXaaEldCVJ/VcpfbppkHtawp9toKgQ3HorRSxr0hcwsSS6PS0k6c3y/5Ns22HF1YiRbbk/LA/VkeFFcs9kCL1EZQQ/O9VHy7jDWtqK7L4gwOG7CURol98AUP4C9M5pZcbBeKY4lY73LmIvD8VGBAmSsb6hUQK4+xj7enhZml9eFXFlL00IIiE/DlJLPj1TaHL1ZST6nI0=
+    secure: tCj2fjkPq4/iFB1pm18J9DRo7G9WMDz3GcDc3RL2Pb76YUVzMUU62tMde45bdqHcDfBtvp/lLJPzfR40R3i5fN8tYvnkeM2wJgZBq01nAJebhSbYMPuuXk4VTeJmSwxr3cxGe00grl8lk6Z2fVa71vR1GAtt8LP+rEsAHk0IOYKvhGiv2ckuqxSiPOKmpLzTsq0YhTCVjJRjaaK9xZW9cviP9zt7jm0uuj02phZi+UFhImjZpWk7s4mBK/7YJpeNZcKtSO6VdQvcbA+jVOHcfD6UjUZw2VbLQwbQGFRxCmHajlTe0X5yqZDonA+N8ZsJQuJXmqXya8zoKtY2KHNJFTBiG6gCt7eJbFOEhssFXoTn47wuzJgLXyDedoZb8Hv3xaCVFxzdVQ4kpYgCno8eZNU3armWlg6pj9fooP1Jb18U9Jhz3Zd/Fs6DlINjnHHKygPO9wQBM4zHFGtjbnUgPIEzzbKY6Kuww+d9uTR41BmA3bQ/RJN2r48L3aN7yLGm5HWO9hRPuKiZdczErCHI+YKwt4Io9BxCzuByUMQjUeM9wH3ph9oflZ2WDEj3axcicTigGDkqFlBNAkdPw3RLUVZW6pwLnEivlOPui8JeOoGQVvwax3k5TeJ45+0MmRJr+E8V1GjBpl5OHaenSE7unaF12DGE85TxOXXLadLxwEo=
