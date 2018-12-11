@@ -16,19 +16,18 @@ before_install:
 - gcloud version
 - gcloud components install beta cloud-datastore-emulator
 - gcloud components update --quiet
-- gcloud beta emulators datastore start --no-store-on-disk &
-- sleep 5
+- gcloud beta emulators datastore start --no-store-on-disk --consistency=1 --no-legacy &
 - composer global require hirak/prestissimo --no-interaction --no-suggest
 install:
 - composer install --prefer-source --no-interaction --dev --ignore-platform-reqs --no-suggest
 script:
-- "$(gcloud beta emulators datastore env-init)"
+- $(gcloud beta emulators datastore env-init)
 - phpunit
 cache:
   directories:
-  - "$HOME/.cache/composer/files"
-  - "$HOME/.composer/cache/files"
-  - "$HOME/google-cloud-sdk/"
+  - $HOME/.cache/composer/files
+  - $HOME/.composer/cache/files
+  - $HOME/google-cloud-sdk/
 jobs:
   include:
   - stage: automerge

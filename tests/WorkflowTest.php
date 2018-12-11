@@ -23,7 +23,6 @@ class WorkflowTest extends TestCase {
         $WorkflowJobKind = Datastore::getWorkflowJobKind();
         DataStore::deleteAll($WorkflowKind);
         DataStore::deleteAll($WorkflowJobKind);
-        usleep(100000);
     }
 
     /**
@@ -60,7 +59,6 @@ class WorkflowTest extends TestCase {
         $workflow_job_key = __METHOD__;
         $workflow_job_config = Workflow::createJobConfig($workflow_config);
         $workflow_job_config = Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
-        usleep(100000);
         $workflow_job_config = Workflow::endJob($workflow_job_key, $workflow_job_config, $initial_state);
         $this->assertEquals($initial_state, $workflow_job_config["end_state"]);
         /**
@@ -81,9 +79,9 @@ class WorkflowTest extends TestCase {
         ]);
         $workflow_job_config = Workflow::createJobConfig($workflow_config);
         Workflow::startJob(__METHOD__, $workflow_job_config, $initial_state);
-        usleep(100000);
+
         Workflow::failJob(__METHOD__, $workflow_job_config, "Testing failed!");
-        usleep(100000);
+
         $job = DataStore::retrieveWorkflowJob(__METHOD__);
         $this->assertEquals(Workflow::STATUS_FAILED, $job["status"]);
     }
@@ -102,9 +100,7 @@ class WorkflowTest extends TestCase {
         $workflow_job_key = Workflow::createWorkflowJobKey();
         $workflow_job_config = Workflow::createJobConfig($workflow_config);
         $workflow_job_config = Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
-        usleep(100000);
         Workflow::endJob($workflow_job_key, $workflow_job_config, $initial_state);
-        usleep(100000);
         $job = DataStore::retrieveWorkflowJob($workflow_job_key);
         $this->assertEquals(Workflow::STATUS_COMPLETED, $job["status"]);
 
@@ -126,7 +122,6 @@ class WorkflowTest extends TestCase {
         $exception_trown = null;
         try {
             Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
-            usleep(100000);
             $workflow_job_key = Workflow::createWorkflowJobKey();
             Workflow::startJob($workflow_job_key, $workflow_job_config, $initial_state);
         } catch (Exception $exception) {
@@ -149,7 +144,6 @@ class WorkflowTest extends TestCase {
         ]);
         $workflow_key = Workflow::createWorkflowKeyFromConfig($workflow_config);
         $pre_job_state = Workflow::getWorkflowState($workflow_key);
-        usleep(100000);
         $after_run_state = Workflow::runFromConfig($workflow_config, $initial_state);
         $this->assertEquals($expected_state, $after_run_state, "State after a simple run should equal todays date.");
         $this->assertEquals($initial_state, $pre_job_state, "Prejob state should equal initial_state of the workflow.");
@@ -171,7 +165,6 @@ class WorkflowTest extends TestCase {
         ]);
         $workflow_key = Workflow::createWorkflowKeyFromConfig($workflow_config);
         $result = Workflow::runFromKey($workflow_key);
-        usleep(500000);
         $persisted_state = Workflow::getWorkflowState($workflow_key);
         $this->assertEquals($expected_state, $result["end_state"], "Run state should produce the next day.");
         $this->assertEquals($result["end_state"], $persisted_state, "State should be persisted.");
