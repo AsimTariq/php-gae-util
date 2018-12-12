@@ -31,6 +31,7 @@ cache:
 jobs:
   include:
   - stage: automerge
+    before_install: skip
     install: skip
     before_script:
     - git config --global user.name travis-ci[bot]
