@@ -26,10 +26,9 @@ script:
 cache:
   directories:
   - $HOME/.cache/composer/files
-  - $HOME/.composer/cache/files
-  - $HOME/.composer/vendor
+  - $HOME/.composer
   - $HOME/google-cloud-sdk
-  - home/travis/.phpenv/versions
+  - $HOME/.phpenv/versions
 jobs:
   include:
   - stage: automerge
