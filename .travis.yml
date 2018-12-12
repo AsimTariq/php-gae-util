@@ -26,7 +26,8 @@ script:
 cache:
   directories:
   - $HOME/.cache/composer/files
-  - $HOME/.composer
+  - $HOME/.composer/cache/files
+  - $HOME/.composer/vendor
   - $HOME/google-cloud-sdk
   - $HOME/.phpenv/versions
 jobs:
