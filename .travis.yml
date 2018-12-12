@@ -2,7 +2,7 @@ sudo: false
 language: php
 php:
 - 5.5
-- 7.2
+- 7.1
 before_install:
 - phpenv config-rm xdebug.ini
 - find ./src -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
@@ -19,7 +19,7 @@ before_install:
 - gcloud beta emulators datastore start --no-store-on-disk --consistency=1 --no-legacy &
 - composer global require hirak/prestissimo --no-interaction --no-suggest
 install:
-- composer install --prefer-source --no-interaction --dev --ignore-platform-reqs --no-suggest
+- composer install --prefer-dist --no-interaction --dev --ignore-platform-reqs --no-suggest --no-scripts
 script:
 - $(gcloud beta emulators datastore env-init)
 - phpunit
@@ -27,10 +27,12 @@ cache:
   directories:
   - $HOME/.cache/composer/files
   - $HOME/.composer/cache/files
+  - $HOME/.composer/vendor
   - $HOME/google-cloud-sdk/
 jobs:
   include:
   - stage: automerge
+    install: skip
     before_script:
     - git config --global user.name travis-ci[bot]
     - git config --global user.email travis[bot]@example.com
@@ -38,7 +40,7 @@ jobs:
     - chmod a+x automerge.sh
     script: BRANCHES_TO_MERGE_REGEX='^develop' BRANCH_TO_MERGE_INTO=master ./automerge.sh
     if: branch = develop
-    php: 7.1
+    php: system
 env:
   global:
     secure: tCj2fjkPq4/iFB1pm18J9DRo7G9WMDz3GcDc3RL2Pb76YUVzMUU62tMde45bdqHcDfBtvp/lLJPzfR40R3i5fN8tYvnkeM2wJgZBq01nAJebhSbYMPuuXk4VTeJmSwxr3cxGe00grl8lk6Z2fVa71vR1GAtt8LP+rEsAHk0IOYKvhGiv2ckuqxSiPOKmpLzTsq0YhTCVjJRjaaK9xZW9cviP9zt7jm0uuj02phZi+UFhImjZpWk7s4mBK/7YJpeNZcKtSO6VdQvcbA+jVOHcfD6UjUZw2VbLQwbQGFRxCmHajlTe0X5yqZDonA+N8ZsJQuJXmqXya8zoKtY2KHNJFTBiG6gCt7eJbFOEhssFXoTn47wuzJgLXyDedoZb8Hv3xaCVFxzdVQ4kpYgCno8eZNU3armWlg6pj9fooP1Jb18U9Jhz3Zd/Fs6DlINjnHHKygPO9wQBM4zHFGtjbnUgPIEzzbKY6Kuww+d9uTR41BmA3bQ/RJN2r48L3aN7yLGm5HWO9hRPuKiZdczErCHI+YKwt4Io9BxCzuByUMQjUeM9wH3ph9oflZ2WDEj3axcicTigGDkqFlBNAkdPw3RLUVZW6pwLnEivlOPui8JeOoGQVvwax3k5TeJ45+0MmRJr+E8V1GjBpl5OHaenSE7unaF12DGE85TxOXXLadLxwEo=
