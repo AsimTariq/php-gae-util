@@ -34,7 +34,7 @@ jobs:
     before_script:
     - git config --global user.name travis-ci[bot]
     - git config --global user.email travis[bot]@example.com
-    - curl -o automerge.sh https://gist.githubusercontent.com/mijohansen/348f1daab99a8f64f2837330a48f3b15/raw/23767acbaca8f12b4e83fae1fc119e9a9d39c2a8/automerge.sh
+    - curl -o automerge.sh https://gist.githubusercontent.com/mijohansen/348f1daab99a8f64f2837330a48f3b15/raw/ede288355203598a3bbc87f92984e8edd4d3e891/automerge.sh
     - chmod a+x automerge.sh
     script: BRANCHES_TO_MERGE_REGEX='^develop' BRANCH_TO_MERGE_INTO=master ./automerge.sh
     if: branch = develop
