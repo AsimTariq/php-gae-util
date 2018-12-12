@@ -28,7 +28,8 @@ cache:
   - $HOME/.cache/composer/files
   - $HOME/.composer/cache/files
   - $HOME/.composer/vendor
-  - $HOME/google-cloud-sdk/
+  - $HOME/google-cloud-sdk
+  - home/travis/.phpenv/versions
 jobs:
   include:
   - stage: automerge
@@ -40,7 +41,7 @@ jobs:
     - chmod a+x automerge.sh
     script: BRANCHES_TO_MERGE_REGEX='^develop' BRANCH_TO_MERGE_INTO=master ./automerge.sh
     if: branch = develop
-    php: system
+    php: 7.1
 env:
   global:
     secure: tCj2fjkPq4/iFB1pm18J9DRo7G9WMDz3GcDc3RL2Pb76YUVzMUU62tMde45bdqHcDfBtvp/lLJPzfR40R3i5fN8tYvnkeM2wJgZBq01nAJebhSbYMPuuXk4VTeJmSwxr3cxGe00grl8lk6Z2fVa71vR1GAtt8LP+rEsAHk0IOYKvhGiv2ckuqxSiPOKmpLzTsq0YhTCVjJRjaaK9xZW9cviP9zt7jm0uuj02phZi+UFhImjZpWk7s4mBK/7YJpeNZcKtSO6VdQvcbA+jVOHcfD6UjUZw2VbLQwbQGFRxCmHajlTe0X5yqZDonA+N8ZsJQuJXmqXya8zoKtY2KHNJFTBiG6gCt7eJbFOEhssFXoTn47wuzJgLXyDedoZb8Hv3xaCVFxzdVQ4kpYgCno8eZNU3armWlg6pj9fooP1Jb18U9Jhz3Zd/Fs6DlINjnHHKygPO9wQBM4zHFGtjbnUgPIEzzbKY6Kuww+d9uTR41BmA3bQ/RJN2r48L3aN7yLGm5HWO9hRPuKiZdczErCHI+YKwt4Io9BxCzuByUMQjUeM9wH3ph9oflZ2WDEj3axcicTigGDkqFlBNAkdPw3RLUVZW6pwLnEivlOPui8JeOoGQVvwax3k5TeJ45+0MmRJr+E8V1GjBpl5OHaenSE7unaF12DGE85TxOXXLadLxwEo=
