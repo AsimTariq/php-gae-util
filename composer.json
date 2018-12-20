@@ -35,6 +35,7 @@
     "test": "$(gcloud beta emulators datastore env-init); phpunit",
     "test1": "$(gcloud beta emulators datastore env-init); phpunit tests/UtilTest.php",
     "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
-    "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses"
+    "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
+    "start-datastore": "docker stop datastore; docker rm datastore; docker run -d -p 8282:8282 --name datastore egymgmbh/datastore-emulator:latest; phpunit"
   }
 }
