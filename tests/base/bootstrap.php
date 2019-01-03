@@ -13,30 +13,8 @@ require_once(dirname(__FILE__) . '/TestClassForWorkflows.php');
 
 use GaeUtil\DataStore;
 
-DataStore::changeToTestMode();
+DataStore::changeToTestMode("localhost:8282");
+putenv("APPLICATION_ID=testapp");
+putenv("CURRENT_MODULE_ID=default");
 
-$datastore_emulator_host = getenv("DATASTORE_EMULATOR_HOST");
-$emulator_started = false;
-$attemts = 0;
-echo "Waiting for datastore at $datastore_emulator_host...";
-while (!$emulator_started) {
-    $curlSession = curl_init();
-    curl_setopt($curlSession, CURLOPT_URL, "http://" . $datastore_emulator_host);
-    curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
-    $content = curl_exec($curlSession);
-    curl_close($curlSession);
-    if (trim($content) == "Ok") {
-        $emulator_started = true;
-        echo "Ready!" . PHP_EOL;
-        break;
-    } else {
-        echo ".";
-        sleep(1);
-    }
-    if ($attemts > 5) {
-        echo "Giving up!" . PHP_EOL;
-        break;
-    } else {
-        $attemts++;
-    }
-}
+

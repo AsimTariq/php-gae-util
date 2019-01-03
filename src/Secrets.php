@@ -8,7 +8,7 @@
 
 namespace GaeUtil;
 
-use GaeUtil\Dtos\PartlyEncodedJson;
+use GaeUtil\Model\PartlyEncodedJson;
 use Noodlehaus\Config;
 
 /**

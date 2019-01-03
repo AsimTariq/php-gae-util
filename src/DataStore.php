@@ -75,7 +75,7 @@ class DataStore {
             syslog(LOG_INFO, "Found " . count($entities) . " records from $kind_schema, deleting them ALL.");
             $store->delete($entities);
         } else {
-            throw new \Exception("GaeUtil refuse to run delete all in production.");
+            throw new \Exception("GaeUtil refuse to run deleteAll in production.");
         }
     }
 
@@ -111,11 +111,22 @@ class DataStore {
         return self::fetchAll($kind_schema, $str_query);
     }
 
-    static function fetchAll($kind_schema, $str_query = null) {
+    static function fetchAll($kind_schema, $str_query = null, $arr_params = []) {
         $store = self::store($kind_schema);
-        $result = $store->fetchAll($str_query);
+        $result = $store->fetchAll($str_query, $arr_params);
         return self::flattenAll($result);
+    }
 
+    static function fetchAllWhere($kind_schema, $where = []) {
+        $str_query = "SELECT * FROM $kind_schema";
+        $whereStr = [];
+        foreach ($where as $key => $val) {
+            $whereStr[] = "$key=@$key";
+        }
+        if (count($whereStr)) {
+            $str_query = $str_query . " WHERE " . implode("AND", $whereStr);
+        }
+        return self::fetchAll($kind_schema, $str_query, $where);
     }
 
     static function flattenAll($input_rows) {
@@ -150,8 +161,9 @@ class DataStore {
         $store = self::store($kind_schema);
         $entity = $store->createEntity($data);
         $entity->setKeyName($key);
-        $store->upsert($entity);
         syslog(LOG_INFO, "Saving $key at kind $kind_schema.");
+        return $store->upsert($entity);
+
     }
 
     static function retrieveWorkflow($workflow_key) {
@@ -247,21 +259,21 @@ class DataStore {
         }
     }
 
-    static function changeToTestMode() {
-        $str_project_id = "sut-project";
-        /*
-        $env_vars = trim(shell_exec("gcloud beta emulators datastore env-init"));
-        foreach (explode(PHP_EOL,$env_vars) as $line){
-            $setting = substr($line, 7);
-            putenv ( $setting );
+    /**
+     * This is a small function to switch datastore to go against the test-database.
+     * Function will wait untill datastore is initiated.
+     *
+     * @param null $datastore_emulator_host
+     */
+    static function changeToTestMode($datastore_emulator_host = null) {
+        if (!is_null($datastore_emulator_host)) {
+            putenv("DATASTORE_EMULATOR_HOST=$datastore_emulator_host");
+        } else {
+            $datastore_emulator_host = getenv("DATASTORE_EMULATOR_HOST");
         }
-        putenv ( "SUPPRESS_GCLOUD_CREDS_WARNING=true" );
-        */
-        putenv ( "DATASTORE_EMULATOR_HOST=localhost:8282" );
-        $gateway = new RESTv1($str_project_id);
-        $datastore_emulator_host = getenv("DATASTORE_EMULATOR_HOST");
-        if(!$datastore_emulator_host){
-            exit("datastore emualtor is not started");
+        $gateway = new RESTv1("sut-project");
+        if (!$datastore_emulator_host) {
+            exit("DATASTORE_EMULATOR_HOST is not set");
         }
         $client = new Client([
             'handler' => HandlerStack::create(),
@@ -269,6 +281,28 @@ class DataStore {
         ]);
         $gateway->setHttpClient($client);
         self::setGateway($gateway);
+        $attemts = 0;
+        echo "Waiting for datastore at $datastore_emulator_host...";
+        while (1) {
+            $curlSession = curl_init();
+            curl_setopt($curlSession, CURLOPT_URL, "http://" . $datastore_emulator_host);
+            curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
+            $content = curl_exec($curlSession);
+            curl_close($curlSession);
+            if (trim($content) == "Ok") {
+                echo "Ready!" . PHP_EOL;
+                break;
+            } else {
+                echo ".";
+                sleep(1);
+            }
+            if ($attemts > 5) {
+                echo "Giving up!" . PHP_EOL;
+                break;
+            } else {
+                $attemts++;
+            }
+        }
     }
 
 }

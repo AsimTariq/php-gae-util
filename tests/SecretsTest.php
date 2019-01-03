@@ -1,6 +1,6 @@
 <?php
 
-use GaeUtil\Dtos\PartlyEncodedJson;
+use GaeUtil\Model\PartlyEncodedJson;
 use GaeUtil\Secrets;
 use PHPUnit\Framework\TestCase;
 

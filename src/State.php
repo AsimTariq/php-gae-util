@@ -10,7 +10,7 @@ namespace GaeUtil;
 
 use Fig\Link\GenericLinkProvider;
 use Fig\Link\Link;
-use GaeUtil\Dtos\AppStatusDto;
+use GaeUtil\Model\AppStatusDto;
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 

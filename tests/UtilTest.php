@@ -7,7 +7,6 @@ class UtilTest extends TestCase {
 
     var $testSchema = "someSchema";
     public function setUp() {
-        DataStore::changeToTestMode();
         DataStore::deleteAll($this->testSchema);
     }
 

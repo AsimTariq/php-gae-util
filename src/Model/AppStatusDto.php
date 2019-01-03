@@ -6,9 +6,9 @@
  * Time: 00:15
  */
 
-namespace GaeUtil\Dtos;
+namespace GaeUtil\Model;
 
-class AppStatusDto {
+class AppStatusDto extends \Google_Model {
 
     public $applicationId;
     public $service;

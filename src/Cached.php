@@ -2,6 +2,12 @@
 
 namespace GaeUtil;
 
+/**
+ * Class Cached is just a thin wrapper around memcached that is the default cache provider for
+ * Google App Engine for PHP55. To make unit-testing simpler this class have that logic embedded.
+ *
+ * @package GaeUtil
+ */
 class Cached {
 
     protected $_key;
@@ -51,6 +57,11 @@ class Cached {
         }
     }
 
+    public function remove(){
+        if (!$this->_ignore_cache) {
+            return self::client()->delete($this->_key);
+        }
+    }
     /**
      *
      * @staticvar \Memcached $mem
@@ -70,6 +81,9 @@ class Cached {
     }
 
     static function delete($cache_key) {
-        return self::client()->delete($cache_key);
+        if (!Util::isCli()) {
+            return self::client()->delete($cache_key);
+        }
+        return true;
     }
 }

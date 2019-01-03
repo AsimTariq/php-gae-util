@@ -6,8 +6,8 @@
  * Time: 01:32
  */
 
-namespace GaeUtil\Dtos;
+namespace GaeUtil\Model;
 
-class JwtToken {
+class JwtToken extends \Google_Model {
 
 }

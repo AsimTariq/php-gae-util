@@ -327,6 +327,10 @@ class Util {
     public static function base64UrlDecode($input) {
         return StringUtil::base64UrlDecode($input);
     }
+
+    public static function classToKindSchema($kind_schema){
+        return str_replace("\\Model\\", "", $kind_schema);
+    }
 }
 
 

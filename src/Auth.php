@@ -18,6 +18,7 @@ class Auth {
     static function getUserDataFromGoogleClient(\Google_Client $client) {
         $service = new \Google_Service_Oauth2($client);
         $user_info = $service->userinfo_v2_me->get();
+
         $user_data = [
             "id" => $user_info->getId(),
             "name" => $user_info->getName(),
