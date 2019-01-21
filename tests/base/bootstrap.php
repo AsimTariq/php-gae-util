@@ -2,10 +2,10 @@
 /**
  * Any set-up needed to run the tests
  *
- * @author Tom Walder <twalder@gmail.com>
  */
 // Time zone
 date_default_timezone_set('UTC');
+error_reporting(E_ALL ^ E_DEPRECATED);
 // Autoloader
 require_once(dirname(__FILE__) . '/../../vendor/autoload.php');
 // Base Test Files

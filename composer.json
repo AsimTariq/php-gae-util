@@ -36,8 +36,7 @@
   "scripts": {
     "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
     "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
-    "ds": "[[ $(docker ps -f 'name=datastore' --format '{{.Names}}') == 'datastore' ]] || docker run -d -p 8282:8282 --name datastore egymgmbh/datastore-emulator:latest;",
-    "test": "composer ds; phpunit",
+    "test": "./tests/bin/setup.sh; phpunit",
     "test55": "php55 ./vendor/bin/phpunit"
 
   }
