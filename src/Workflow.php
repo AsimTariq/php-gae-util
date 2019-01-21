@@ -86,6 +86,7 @@ class Workflow {
      *
      * @param $workflow_key
      * @return array
+     * @throws \Exception
      */
     static function runFromKey($workflow_key) {
         $workflow_job_config = [];
@@ -131,7 +132,7 @@ class Workflow {
      * This does not do any checks towards the database if there is jobs running.
      *
      * @param $workflow_config
-     * @param $state
+     * @param $workflow_state
      * @return mixed
      * @throws \Exception
      */
@@ -175,9 +176,10 @@ class Workflow {
     }
 
     /**
-     * @param $state
+     * @param $workflowClassName
+     * @param $workFlowState
      * @return bool
-     * @throws \Exception
+     * @throws \ReflectionException
      */
     static function validateState($workflowClassName, $workFlowState) {
         $method = new \ReflectionMethod($workflowClassName, "setState");
@@ -195,9 +197,10 @@ class Workflow {
 
     /**
      * Checks if its long since last error. This allows us to not spam apis with error for instance.
-     *
      * @param $workflow_key
-     * @return mixed
+     * @param $error_ttl
+     * @return bool
+     * @throws \Exception
      */
     static function isWorkflowInErrorState($workflow_key, $error_ttl) {
         $status = self::STATUS_FAILED;
@@ -231,9 +234,9 @@ class Workflow {
 
     /**
      * Will check if there is still a job running
-     *
      * @param $workflow_key
      * @return bool
+     * @throws \Exception
      */
     static function isWorkflowRunning($workflow_key) {
         $status = self::STATUS_RUNNING;
@@ -304,12 +307,11 @@ class Workflow {
     }
 
     /**
-     * Returnes a report.
-     *
      * @param $workflow_job_key
      * @param $workflow_job_config
      * @param $message
      * @return array
+     * @throws \Exception
      */
     static function failJob($workflow_job_key, $workflow_job_config, $message) {
         $workflow_job_config = array_merge($workflow_job_config, [
@@ -325,9 +327,10 @@ class Workflow {
      * Returnes a report.
      *
      * @param $workflow_job_key
+     * @param $workflow_job_config
      * @param array $end_state
-     * @param string $message
      * @return array
+     * @throws \Exception
      */
     static function endJob($workflow_job_key, $workflow_job_config, $end_state = []) {
         $workflow_job_config = array_merge($workflow_job_config, [
@@ -344,6 +347,7 @@ class Workflow {
      *
      * @param RequestInterface $request
      * @return array
+     * @throws \Exception
      */
     static function endpointHandler(RequestInterface $request) {
         $get_param = "workflow_key";

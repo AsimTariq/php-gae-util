@@ -11,6 +11,11 @@ namespace GaeUtil;
 use GaeUtil\Model\Resource;
 use GaeUtil\Model\UserPermission;
 
+/**
+ * Class Authz
+ *
+ * @package GaeUtil
+ */
 class Authz {
 
     const READ = "read";
@@ -38,6 +43,7 @@ class Authz {
     /**
      * @param Resource $resource
      * @param $userId
+     * @throws \Exception
      */
     static function assignRead(Resource $resource, $userId) {
         self::assignPermission($resource, self::READ, $userId);
@@ -46,6 +52,7 @@ class Authz {
     /**
      * @param Resource $resource
      * @param $userId
+     * @throws \Exception
      */
     static function assignReadWrite(Resource $resource, $userId) {
         self::assignPermission($resource, self::READWRITE, $userId);
@@ -137,6 +144,7 @@ class Authz {
      * @param $kind
      * @param $id
      * @param null $displayName
+     * @throws \Exception
      */
     static function upsertResource($kind, $id, $displayName = null) {
         $resource = new Resource();
@@ -145,13 +153,14 @@ class Authz {
         $resource->displayName = $displayName;
         $kind_schema = self::getResourceKind();
         $key = self::getResourceKey($resource);
-        return DataStore::upsert($kind_schema, $key, $resource);
+        DataStore::upsert($kind_schema, $key, $resource);
     }
 
     /**
      * @param Resource $resource
      * @param $permission
      * @param $userId
+     * @throws \Exception
      */
     static function assignPermission(Resource $resource, $permission, $userId) {
         $kind_schema = self::getPermissionKind();
@@ -164,7 +173,7 @@ class Authz {
         self::getUserCached($userId)->remove();
         self::getResourceCached($resourceKey)->remove();
         $key = Cached::keymaker($resourceKey, $userId);
-        return DataStore::upsert($kind_schema, $key, $userPermission);
+        DataStore::upsert($kind_schema, $key, $userPermission);
     }
 
     static function getResourceKey(Resource $resource) {

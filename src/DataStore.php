@@ -83,7 +83,7 @@ class DataStore {
      * @throws \Exception
      */
     static function deleteWorkflowJobs() {
-        return self::deleteAll(self::getWorkflowJobKind());
+        self::deleteAll(self::getWorkflowJobKind());
     }
 
     static function saveToken($user_email, $user_data) {
@@ -157,12 +157,18 @@ class DataStore {
         self::upsert($kind_schema, $key, $workflow_config);
     }
 
+    /**
+     * @param $kind_schema
+     * @param $key
+     * @param $data
+     * @throws \Exception
+     */
     static function upsert($kind_schema, $key, $data) {
         $store = self::store($kind_schema);
         $entity = $store->createEntity($data);
         $entity->setKeyName($key);
         syslog(LOG_INFO, "Saving $key at kind $kind_schema.");
-        return $store->upsert($entity);
+        $store->upsert($entity);
 
     }
 

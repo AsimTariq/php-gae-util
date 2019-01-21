@@ -10,7 +10,7 @@ namespace GaeUtil;
 
 use Fig\Link\GenericLinkProvider;
 use Fig\Link\Link;
-use GaeUtil\Model\AppStatusDto;
+use GaeUtil\Model\AppStatus;
 use google\appengine\api\app_identity\AppIdentityService;
 use google\appengine\api\users\UserService;
 
@@ -18,13 +18,13 @@ class State {
 
     /**
      * @param array $links
-     * @return AppStatusDto
+     * @return AppStatus
      * @throws \Noodlehaus\Exception\EmptyDirectoryException
      * @throws \google\appengine\api\users\UsersException
      */
     static function status($links = []) {
 
-        $status = new AppStatusDto();
+        $status = new AppStatus();
 
         $status->applicationId = Util::getApplicationId();
 

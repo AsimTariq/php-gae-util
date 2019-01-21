@@ -69,7 +69,7 @@ class Auth {
          * Adding some default scopes. We probably should always know who the client is
          */
         $scopes[] = 'https://www.googleapis.com/auth/userinfo.email';
-        $scopes[] = "https://www.googleapis.com/auth/userinfo.profile";
+        $scopes[] = 'https://www.googleapis.com/auth/userinfo.profile';
         $scopes = array_unique($scopes);
         return $scopes;
     }
@@ -97,8 +97,8 @@ class Auth {
     static function getGoogleClientByEmail($email = null) {
         $client = self::getGoogleClient();
         $client->setRedirectUri(self::getCallbackUrl());
-        $client->setAccessType('offline');        // offline access
-        $client->setIncludeGrantedScopes(true);   // incremental auth
+        $client->setAccessType('offline');       // offline access
+        $client->setIncludeGrantedScopes(true);      // incremental auth
         $client->setApprovalPrompt('force');
         if (!is_null($email)) {
             $client->setLoginHint($email);
@@ -192,7 +192,7 @@ class Auth {
     static function createLoginURL($extra_provider = null) {
         if(!Util::isCli()){
             if (!is_null($extra_provider)) {
-                $provider_param = "?next=" + $extra_provider;
+                $provider_param = "?next=" . $extra_provider;
             } else {
                 $provider_param = "";
             }

@@ -5,11 +5,11 @@ go fast and smooth. Handling common GAE scenarios with less code.
 
 ## Modules
 * **Auth:** Handles several issues around getting users autenticated.
-* **Cached:** Just a simple wrapper for memcache to make this code better.
+* **Cached:** Just a simple wrapper for memcache for easier testing.
 * **Conf:** A wrapper around `hassankhan/config` which provides a lightweighhed
-library for doing such stuff. This wrapper is adapted for GAE.
+library for handling config.
 * **Fetch:** Simple module to ensure service to service communication.
-* **JWT:** My module to handle all the work on JWT-tokens. Wrapper around
+* **JWT:** A module to handle JWT-tokens. Wrapper around
 `firebase/php-jwt`
 * **Secrets:** Module to handle keeping secrets secret. Using Google KMS
 to secure passwords and tokens.
@@ -51,6 +51,11 @@ $ gcloud components install cloud-datastore-emulator
 $ gcloud beta emulators datastore start --no-store-on-disk
 ```
 
+or alternatively with docker:
+
+```bash
+$ docker run -d -p 8282:8282 --name datastore egymgmbh/datastore-emulator:latest
+```
 
 ### For local development of packages
 

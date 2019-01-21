@@ -8,7 +8,7 @@
 
 namespace GaeUtil\Model;
 
-class AppStatusDto extends \Google_Model {
+class AppStatus extends \Google_Model {
 
     public $applicationId;
     public $service;

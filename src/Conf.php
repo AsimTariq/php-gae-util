@@ -122,12 +122,20 @@ class Conf {
     }
 
     static function getConfFilepath($filename) {
-        $vendorDir = ProjectUtils::getVendorDir();
-        $conf_filepath_real = Util::resolveFilePath($vendorDir, "..", self::CONFIG_DIR, $filename);
-        if (!file_exists($conf_filepath_real)) {
-            $conf_filepath_real = Util::resolveFilePath(dirname(__FILE__), "..", self::CONFIG_DIR, $filename);
+        if (file_exists($filename)) {
+            return $filename;
         }
-        return $conf_filepath_real;
+
+        $conf_filepath_real = Util::resolveFilePath(ProjectUtils::getVendorDir(), "..", self::CONFIG_DIR, $filename);
+        if (file_exists($conf_filepath_real)) {
+            return $conf_filepath_real;
+        }
+
+        $conf_filepath_real = Util::resolveFilePath(dirname(__FILE__), "..", self::CONFIG_DIR, $filename);
+        if (file_exists($conf_filepath_real)) {
+            return $conf_filepath_real;
+        }
+        return false;
     }
 
     static function getGaeUtilJsonPath($project_directory) {

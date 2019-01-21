@@ -45,6 +45,8 @@ class PostInstall {
     static function cleanGoogleApiClasses($event) {
         $vendorDir = $event->getComposer()->getConfig()->get("vendor-dir");
         define("COMPOSER_VENDOR_DIR", $vendorDir);
+
+        /** @noinspection PhpIncludeInspection */
         require_once $vendorDir . DIRECTORY_SEPARATOR . "autoload.php";
         $service_directory = Util::pathmaker($vendorDir, "google", "apiclient-services", "src", "Google", "Service");
 

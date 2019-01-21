@@ -50,7 +50,7 @@ class Cached {
      * @param $value
      * @param int $expiration
      */
-    public function set($value, $expiration = 3600) {
+    public function set($value, $expiration = Moment::ONEHOUR) {
         $this->_data = $value;
         if (!$this->_ignore_cache) {
             self::client()->set($this->_key, $value, $expiration);
@@ -60,6 +60,8 @@ class Cached {
     public function remove(){
         if (!$this->_ignore_cache) {
             return self::client()->delete($this->_key);
+        } else {
+            return true;
         }
     }
     /**
