@@ -26,7 +26,7 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",
-    "symfony/process": "^4.2"
+    "symfony/process": "v3.*"
   },
   "autoload": {
     "psr-4": {
@@ -36,6 +36,9 @@
   "scripts": {
     "post-update-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
     "post-install-cmd": "GaeUtil\\PostInstall::cleanGoogleApiClasses",
-    "test": "[[ $(docker ps -f 'name=datastore' --format '{{.Names}}') == 'datastore' ]] || docker run -d -p 8282:8282 --name datastore egymgmbh/datastore-emulator:latest; phpunit"
+    "ds": "[[ $(docker ps -f 'name=datastore' --format '{{.Names}}') == 'datastore' ]] || docker run -d -p 8282:8282 --name datastore egymgmbh/datastore-emulator:latest;",
+    "test": "composer ds; phpunit",
+    "test55": "php55 ./vendor/bin/phpunit"
+
   }
 }

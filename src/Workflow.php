@@ -120,7 +120,7 @@ class Workflow {
             if ($end_state) {
                 return self::endJob($workflow_job_key, $workflow_job_config, $end_state);
             } else {
-                return self::failJob($workflow_job_key, $workflow_job_config);
+                return self::failJob($workflow_job_key, $workflow_job_config, "Job didn't emit an endstate.");
             }
         } catch (\Exception $exception) {
             $workflow_job_config["runtime"] = microtime(true) - $start_time;
