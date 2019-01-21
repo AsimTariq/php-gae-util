@@ -17,6 +17,7 @@
     "google/cloud-storage": "v1.*",
     "hassankhan/config": "v1.*",
     "monolog/monolog": "v1.*",
+    "doctrine/instantiator": "1.0.5",
     "php": ">=5.5",
     "tomwalder/php-gds": "v4.*",
     "ext-openssl":"*",

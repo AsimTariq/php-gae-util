@@ -7,7 +7,6 @@ php:
 before_install:
 - phpenv config-rm xdebug.ini
 - find ./src -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
-- docker run -d -p 8282:8282 --name datastore egymgmbh/datastore-emulator:latest
 install:
 - composer install --prefer-dist --no-interaction --dev --ignore-platform-reqs --no-suggest --no-scripts
 script:
