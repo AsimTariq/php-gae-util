@@ -94,13 +94,13 @@ class Auth {
      * @throws \Google_Exception
      * @throws \Noodlehaus\Exception\EmptyDirectoryException
      */
-    static function getGoogleClientByEmail($email = null) {
+    static function getGoogleClientByEmail($email = false) {
         $client = self::getGoogleClient();
         $client->setRedirectUri(self::getCallbackUrl());
         $client->setAccessType('offline');       // offline access
         $client->setIncludeGrantedScopes(true);      // incremental auth
         $client->setApprovalPrompt('force');
-        if (!is_null($email)) {
+        if ($email) {
             $client->setLoginHint($email);
             $user_data = DataStore::retriveTokenByUserEmail($email);
             if ($user_data && isset($user_data["access_token"])) {
