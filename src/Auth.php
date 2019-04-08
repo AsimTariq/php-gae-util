@@ -107,6 +107,7 @@ class Auth {
                 $client = self::refreshTokenIfExpired($user_data, $client);
             }
         }
+
         return $client;
     }
 
